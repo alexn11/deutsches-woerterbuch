@@ -17,5 +17,30 @@ mv data/engde.db ../deutsches-woerterbuch/data/dump-data.db
 - now can "just" process the xml of each page in the database
 
 
+# parsing wiki text language into html
+use `pypandoc`
+
+```python
+import wikipedia
+
+try:
+    page = wikipedia.page("Python (programming language)")
+    raw_content = page.content
+except wikipedia.exceptions.PageError:
+    print("Page not found.")
+except wikipedia.exceptions.DisambiguationError as e:
+    print("Disambiguation page. Choices:", e.options)
+
+
+import pypandoc
+
+try:
+    html_output = pypandoc.convert_text(raw_content, 'html', format='mediawiki')
+    print(html_output)
+except OSError:
+    print("Pandoc is not installed.")
+
+```
+
 
 
