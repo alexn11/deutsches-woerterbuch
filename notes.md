@@ -5,7 +5,7 @@
 - proposal might have several translations
 - when click on proposal/translation, directed directly to the content of the corresp entry
 
-
+- once installed is online except for updates
 
 # priority 0
 
@@ -19,8 +19,8 @@
 
 # priority 2
 
-- add contributors list (transaltion+entry)
-
+- add contributors list (transaltion+entry) - necessary if public app
+- "update the data now?" (last dump date, new available dump date - download size)
 
 
 
