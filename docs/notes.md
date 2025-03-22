@@ -7,15 +7,19 @@
 
 - once installed is online except for updates
 
+
 # priority 0
 
 - extract "translations" boxes
 - extract all the entries for german words
 - do the matching
 
+- manual extraction process
+
 # priority 1
 
 - matches appear when typing in search box
+- poten automated extaction process
 
 # priority 2
 
