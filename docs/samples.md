@@ -34,3 +34,6 @@ ker}}
 {{trans-bottom}}
 
 ...
+
+# special translations with qualifiers
+ "{{t+|de|Standort|m}} {{qualifier|plants}}"

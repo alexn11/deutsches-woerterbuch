@@ -42,5 +42,8 @@ except OSError:
 
 ```
 
+## pandoc doesn't process everything
 
-
+try:
+- wikitextparser
+- mwparserfromhtml

@@ -1,2 +1,5 @@
 *.db
 *.bz2
+/ignored
+*.pyc
+translations.json

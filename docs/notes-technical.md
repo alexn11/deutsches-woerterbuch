@@ -17,8 +17,17 @@ if there's several translations they are separated by coma normally (or period?)
 ```
 ignore those (not applicable for german i assume: **NEED TO CHECK THIS IS TRUE**)
 
+# link format
+https://en.wiktionary.org/wiki/Graupel#German
+
+# info
+
+from:
+
+Proceedings of the Fourteenth International AAAI Conference on Web and Social Media (ICWSM 2020)WikiHist.html: English Wikipedia’s Full Revision History in HTML Format
+
+https://ojs.aaai.org/index.php/ICWSM/article/view/7353/7207
 
 
-
-
+1Tb of WikiText parsed into HTML becomes 7Tb
 

@@ -1,12 +1,32 @@
 # principal use
 
+## en -> de
 - search term in english
 - get proposals: exact match first (with poten precision on meaning) then containing the word
 - proposal might have several translations
 - when click on proposal/translation, directed directly to the content of the corresp entry
 
-- once installed is online except for updates
+## de -> en
+can simply display a version of the wk page
 
+
+## specifics
+- once installed can be used offline
+- updates are the only times when online is necessary
+
+
+
+
+
+# things to be aware of
+
+- case sensitivity
+- you need the templates
+
+# preliminary
+
+- check the prevalence of "* German:\n*:..."
+- list all the templates used in german entries (can probabaly use mwparserfromhell for that)
 
 # priority 0
 
