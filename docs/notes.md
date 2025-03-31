@@ -1,3 +1,9 @@
+# random
+
+50 pages/s
+380000 pages
+-> 2 hours
+
 # principal use
 
 ## en -> de
