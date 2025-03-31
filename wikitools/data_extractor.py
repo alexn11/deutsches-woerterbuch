@@ -23,6 +23,7 @@ def finer_quick_filter(page_body: str, base_filter: str, required_strings: list[
         return True
     return all(required_string in page_body for required_string in required_strings)
 
+
 def parse_pages_wiki(pages: list[dict]) -> list[dict]:
     for page in tqdm(pages):
         page['wikicode'] = wikicode_parse(page['body'])

@@ -4,6 +4,20 @@
 380000 pages
 -> 2 hours
 
+mwparserfromhell
+total lines of code:
+(git ls-files | xargs wc -l)
+23769 total
+
+of which within py
+(git ls-files | grep '\.py' | xargs wc -l)
+ 11319
+
+of which within c & h
+(git ls-files | grep -e '\.c' -e '\.h' | xargs wc -l)
+6362
+(the tokenizer seems to be written in c)
+
 # principal use
 
 ## en -> de
