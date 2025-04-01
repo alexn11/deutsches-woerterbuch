@@ -2,11 +2,11 @@ import random
 import sqlite3
 
 from mwparserfromhell import parse as wikicode_parse
+from mwparserfromhell.parser import Parser as WikicodeParser
 from mwparserfromhell.wikicode import Wikicode
 from tqdm import tqdm
 
 end_translation_tag = '{{trans-bottom}}'
-
 
 def make_section_header_string(language: str) -> str:
     return f'=={language}=='
@@ -25,13 +25,15 @@ def finer_quick_filter(page_body: str, base_filter: str, required_strings: list[
 
 
 def parse_pages_wiki(pages: list[dict]) -> list[dict]:
+    parser = WikicodeParser()
     for page in tqdm(pages):
-        page['wikicode'] = wikicode_parse(page['body'])
+        page['wikicode'] = parser.parse(page['body'], context=0, skip_style_tags=True)
     return pages
 
 def prepare_pages(db_file_path: str,
                   filter_languages: list[str] = ['English', 'German'],
-                  sample_size: int = 0) -> list[dict]:
+                  sample_size: int = 0,
+                  skip_parsing=False) -> list[dict]:
     # note: 1st language in the list is the base language, 2nd is the target language
     language_quick_filters = [
         make_section_header_string(language)
@@ -39,13 +41,15 @@ def prepare_pages(db_file_path: str,
     ]
     db_connection = sqlite3.connect(db_file_path)
     db_cursor = db_connection.cursor()
+    print(f'fetching pages from database')
     page_rows = db_cursor.execute(f'select title, body from pages').fetchall()
+    print(f'fetched {len(page_rows):_} pages')
     pages = [
         {
             'title': page[0],
             'body': page[1],
         }
-        for page in page_rows
+        for page in tqdm(page_rows)
         if(quick_page_filter(page[1], language_quick_filters)
            and
            finer_quick_filter(page[1],
@@ -53,9 +57,15 @@ def prepare_pages(db_file_path: str,
                               [ make_translation_line_string(filter_languages[1]),
                                '{{trans-top' ])) # wiki parse is very slow
     ]
+    print(f'filtered down to {len(pages):_} pages')
     if(sample_size > 0):
+        print(f'sampling {sample_size:_} pages')
         pages = random.sample(pages, sample_size)
+    if(skip_parsing):
+        return pages
+    print(f'about to parse {len(pages):_} pages')
     parse_pages_wiki(pages)
+    print(f'prepared {len(pages):_} pages')
     return pages
 
 
@@ -83,7 +93,7 @@ def filter_language(pages_data: list[dict], language: str = 'German') -> list[di
     return language_pages
 
 
-def extract_translations(page_wiki: Wikicode, language: str = 'German') -> list[dict]:
+def extract_translations(page_wiki: Wikicode, language: str = 'German',) -> list[dict]:
     page_templates = page_wiki.filter_templates()
     translation_templates = [
         template for template in page_templates
@@ -92,6 +102,7 @@ def extract_translations(page_wiki: Wikicode, language: str = 'German') -> list[
     language_filter_line = f'* {language}:'
     translations = []
     for template in translation_templates:
+        errors = []
         translations_start = page_wiki.find(str(template))
         translations_end = translations_start + page_wiki[translations_start:].find(end_translation_tag)
         # split into lines, keep only the lines that start with the selected language, etc
@@ -103,11 +114,22 @@ def extract_translations(page_wiki: Wikicode, language: str = 'German') -> list[
         if(len(translation_lines) == 0):
             continue
         if(len(translation_lines) != 1):
-            raise Exception(f'{template} : ({len(translation_lines)}) {translation_lines}')
+            errors.append(f'more than one entry (={len(translation_lines)}) in transations block')
+            #raise Exception(f'{template} : ({len(translation_lines)}) {translation_lines}')
+        try:
+            x = str(template)
+        except(ValueError):
+            print(template)
+            raise
+        try:
+            meaning = template.get(1).value
+        except(ValueError): # no specification of meaning
+            meaning = ''
         translation = {
             'code': '\n'.join([str(template), '\n'.join(translation_lines), end_translation_tag]),
-            'meaning': template.get(1).value,
+            'meaning': meaning,
             'translations': translation_lines[0][len(language_filter_line):].strip(),
+            'errors': errors,
         }
         translations.append(translation)
     return translations

@@ -1,3 +1,41 @@
+
+# data
+
+1. fetched 1_539_330 pages
+2. filtered down to 380_606 pages (to be parsed)
+3. sample of 10_000 pages give: 41 seconds of parsing, 241.72 pages/s
+(all the pages would be 27 minutes)
+    - another sample gave 256.84 pages/s
+    - a sample of size 38_000 gave 238.46 (2:39)
+
+
+# profiling
+
+42 seconds to process 5000 pages
+116.39 it/s
+tot time 65 seconds (include db fetchall, basic filtering)
+spends a lot of time in:
+- `parse_anything` 5.920
+- wikicode `__init__` 5.010
+- builder `_handle_parameter` 2.790
+- `_handle_fromlist` 2.303
+- checking "isintance" (done a lot in `parse_anything`) 1.658
+- builder `_handle_template` 1.421
+- text `__init__` 1.293
+- `rpartition` of `str` objects 1.185
+- builder `_pop` 1.182
+- smart_list `__new__` 1.143
+- builder `_handle_tag_` 1.037
+- builder 41 a lambda 1.019 "{tokens.Text: lambda self, token: Text(token.text)}"
+- builder `_handle_token` 0.894
+- hasattr 0.790
+- tokens `__getattr__` 0.741
+- `pop` of `list` objects 0.713
+(total ~29.1 - note: probably some overlap)
+
+NOTE: translation extractor is also rather slow ~106 it/s
+
+# LLM
 chatgpt suggests profiling the code:
 
 ```
@@ -9,13 +47,7 @@ cProfile.run("mwparserfromhell.parse(sample_text)", sort='cumtime')
 ```
 
 I get:
-
-
-
-
-
-
-
+(verbatim text block)
 
          443037 function calls (427037 primitive calls) in 0.235 seconds
 
