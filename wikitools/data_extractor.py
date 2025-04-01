@@ -1,5 +1,5 @@
+import random
 import sqlite3
-
 
 from mwparserfromhell import parse as wikicode_parse
 from mwparserfromhell.wikicode import Wikicode
@@ -30,7 +30,9 @@ def parse_pages_wiki(pages: list[dict]) -> list[dict]:
     return pages
 
 def prepare_pages(db_file_path: str,
-                  filter_languages: list[str] = ['English', 'German']) -> list[dict]:
+                  filter_languages: list[str] = ['English', 'German'],
+                  sample_size: int = 0) -> list[dict]:
+    # note: 1st language in the list is the base language, 2nd is the target language
     language_quick_filters = [
         make_section_header_string(language)
         for language in filter_languages
@@ -51,6 +53,8 @@ def prepare_pages(db_file_path: str,
                               [ make_translation_line_string(filter_languages[1]),
                                '{{trans-top' ])) # wiki parse is very slow
     ]
+    if(sample_size > 0):
+        pages = random.sample(pages, sample_size)
     parse_pages_wiki(pages)
     return pages
 
