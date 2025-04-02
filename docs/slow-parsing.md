@@ -9,6 +9,11 @@
     - a sample of size 38_000 gave 238.46 (2:39)
 
 
+50_000 pages parsed in 3m23s (245.11 pages/s)
+8451 translation items extracted
+12117 translation texts
+18 templates in translation texts
+
 # profiling
 
 42 seconds to process 5000 pages

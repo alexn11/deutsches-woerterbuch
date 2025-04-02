@@ -14,7 +14,6 @@ def make_section_header_string(language: str) -> str:
 def make_translation_line_string(language: str) -> str:
     return f'* {language}:'
 
-
 def quick_page_filter(page_body: str, filter_strings: list[str]):
     return any(filter_string in page_body for filter_string in filter_strings)
 
@@ -134,4 +133,15 @@ def extract_translations(page_wiki: Wikicode, language: str = 'German',) -> list
         translations.append(translation)
     return translations
 
-
+def list_all_templates(pages_wiki: list[str]) -> list[dict]:
+    parser = WikicodeParser()
+    templates = {}
+    for page_wiki in pages_wiki:
+        page_wiki = parser.parse(page_wiki, skip_style_tags=True)
+        page_templates = page_wiki.filter_templates()
+        for template in page_templates:
+            template_name = str(template.name)
+            if(template_name in templates):
+                continue
+            templates[template_name] = [ template, page_wiki ]
+    return templates
