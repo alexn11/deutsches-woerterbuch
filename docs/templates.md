@@ -72,3 +72,9 @@ drop these
 # ACHTUNG
 
 - links within "t*" templates
+
+
+# sachen überzuprüfen
+
+- links within t templates
+- max numbers of args of t templates
