@@ -40,13 +40,18 @@ within parenthesis in italic
 
 # t
 
-args: language code, entry name + optional args
+args: language code, entry name + optional args + alt=display name, lit=literal translation
 
 link:
 https://en.wiktionary.org/wiki/{{entry name}}#{{language(language code)}}
 (note: missing entries shouldn't have a link)
 
-if optional args: space then value of 1st arg (more args?)
+- if optional args: space then value of 1st arg (more args?)
+- alt: show display name for link if alt present (how does that work?)
+- lit: after other optional args, show within parenthesis after the word "literally" within double quotes:
+ "(literally “{{literal translation}}”)"
+
+
 
 (translation)
 

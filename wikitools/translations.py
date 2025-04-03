@@ -1,7 +1,10 @@
+raise DeprecationWarning('module is obsolete')
+
 import re
 import sqlite3
 
 from tqdm import tqdm
+
 
 # TODO: use the parser!
 
