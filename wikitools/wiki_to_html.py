@@ -134,13 +134,16 @@ class WikiCompiler:
         processed_content = ''
         print(f'MAIN: input="{wiki_code}" ({type(wiki_code)})')
         for node in wiki_code.nodes:
+            print(f'MAIN: node="{node}"')
             if(isinstance(node, Template)):
                 print('MAIN: > template')
-                processed_content += self.process_template(node)
+                converted_node = self.process_template(node)
             else:
                 #just append the node as str
                 print('MAIN: > anything else')
-                processed_content += str(node)
+                converted_node = str(node)
+            print(f'MAIN: node result="{converted_node}"')
+            processed_content += converted_node
         print(f'MAIN result="{processed_content}"')
         return processed_content
 

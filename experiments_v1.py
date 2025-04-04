@@ -170,6 +170,19 @@ with open('ignored/translations.html', 'w') as f:
     f.write(translations_html)
 
 
+# current STATUS ----
+
+extraction_outputs = main_process(db_file_path=db_file_path, sample_size=2000,)
+
+from pprint import pprint
+from mwparserfromhell.parser import Parser as WikiParser
+from wikitools import wiki_to_html
+
+translation_texts = extraction_outputs['translation_texts']
+parser = WikiParser()
+
+
+# repeat below 
 
 importlib.reload(wiki_to_html)
 from wikitools import html_formatter

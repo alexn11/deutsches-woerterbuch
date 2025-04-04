@@ -1,2 +1,10 @@
+# CURRENTLY
+
+trying to understand why the template isnt detected
+
+
+# todo
+
+
 - a qualifier has `([[ambiguous]])` this link should be ignored since it's not a german word
 - split multiword `{{t}}` templates when the page doesn't exist (requires to check the existence of the page)
