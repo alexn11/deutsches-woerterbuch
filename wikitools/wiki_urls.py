@@ -18,3 +18,9 @@ def make_url(entry: str, language: str|None = None, language_code: str|None = No
     elif(language_code is not None):
         url += f'#{convert_language_code_to_language_name(language_code)}'
     return url
+
+def make_wikipedia_url(entry: str) -> str:
+    # TODO: proper entry formatting
+    entry = entry.replace(' ', '_')
+    url = f'https://en.wikipedia.org/wiki/{entry}'
+    return url

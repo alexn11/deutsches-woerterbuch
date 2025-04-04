@@ -5,7 +5,7 @@ from mwparserfromhell.parser import Parser as WikiParser
 from mwparserfromhell.wikicode import Wikicode
 
 from wikitools.html_formatter import apply_span_class, make_link
-from wikitools.wiki_urls import make_url, convert_language_code_to_language_name
+from wikitools.wiki_urls import make_url, make_wikipedia_url
 
 def process_g_template(wiki: Template):
     return apply_span_class('gender-indication', str(wiki.get(1)))
@@ -20,9 +20,21 @@ def process_link_template(wiki: Template):
 def process_gloss_template(wiki: Template):
     return apply_span_class('gloss', f'({wiki.get(1).value})')
 
+def process_i_template(wiki: Template) -> str:
+    return apply_span_class('italic', str(wiki.get(1)))
+
 def process_IPAchar_template(wiki: Template):
     return apply_span_class('IPA', wiki.get(1).value)
 
+def process_wikipedia_link_template(wiki: Template):
+    link_text = str(wiki.get(1))
+    if(len(wiki.params) > 1):
+        entry_name = str(wiki.get(2))
+    else:
+        entry_name = link_text
+    return make_link(url=make_wikipedia_url(entry_name),
+                     text=link_text,
+                     css_class='default-link')
 
 class WikiCompiler:
 
@@ -82,6 +94,8 @@ class WikiCompiler:
                 lit_text = f'(literally “{lit_param}”)'
             else:
                 param_str = str(param)
+                if(param_str == '?'): # gender information missing from the dictionary
+                    continue
                 if(param_str.endswith('-p')): # plural indication
                     param_str = param_str[:-2] + ' pl'
                 optional_args.append(param_str) # NOTE: should be recursively parsed instead...
@@ -110,6 +124,8 @@ class WikiCompiler:
                 processed_wiki = process_g_template(wiki)
             case 'gloss':
                 processed_wiki = process_gloss_template(wiki)
+            case 'i':
+                processed_wiki = process_i_template(wiki)
             case 'IPAchar':
                 processed_wiki = process_IPAchar_template(wiki)
             case 'l':
@@ -117,13 +133,15 @@ class WikiCompiler:
                 processed_wiki = process_link_template(wiki)
             case 'm' | 'mention':
                 processed_wiki = self.process_mention_template(wiki)
-            case 'q' | 'qual' | 'qualifier':
+            case 'q' | 'qual' | 'qualifier' | 'qf':
                 processed_wiki = self.process_qualifier_template(wiki)
             case 't' | 't+' | 'tt' | 'tt+':
                 processed_wiki = self.process_translation_template(wiki)
             case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention':
                 processed_wiki = ''
                 self.ignored_templates_ct += 1
+            case 'w':
+                processed_wiki = process_wikipedia_link_template(wiki)
             case _:
                 self.unexpected_templates.append((template_name, wiki))
         return processed_wiki
@@ -158,6 +176,11 @@ class WikiCompiler:
             wiki_code = self.parse(wiki_text)
             html_text = self.convert_wikicode_to_html(wiki_code)
             self._has_link = []
+            html_text = re.sub(r',(?: ,){1,}', ',', html_text)
+            html_text = re.sub(r',(?: ,){1,}', ',', html_text)
+            html_text = html_text.strip()
+            if(html_text in [ ',', ';']):
+                html_text = ''
             html_texts.append(html_text)
         return html_texts
 
