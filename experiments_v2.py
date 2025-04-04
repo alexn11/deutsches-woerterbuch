@@ -39,18 +39,20 @@ def main_process(db_file_path: str = 'data/dump-data.db',
     if('translations' in steps):
         print('extracting the translations...')
         translations = [
-            data_extractor.extract_translations(english_page['wikicode'], language='German')
+            data_extractor.extract_translations(english_page['title'],
+                                                english_page['wikicode'],
+                                                language='German')
             for english_page in tqdm(english_pages)
         ]
         data_sizes['translations-extract'] = len(translations)
         translation_texts = []
         for translation_set in translations:
-            translation_texts += [ t['translations'] for t in translation_set ]
+            translation_texts += [ (t['entry_name'], t['meaning'], t['translations']) for t in translation_set ]
         data_sizes['translations-texts'] = len(translation_texts)
     translation_templates = None
     if('translation-templates' in steps):
         print('extracting the translation templates...')
-        translation_templates = data_extractor.list_all_templates(translation_texts)
+        translation_templates = data_extractor.list_all_templates([ t[-1] for t in translation_texts])
         data_sizes['translation-templates'] = len(translation_templates)
     return {
         'data_sizes': data_sizes,
@@ -62,8 +64,14 @@ def main_process(db_file_path: str = 'data/dump-data.db',
         'translation_templates': translation_templates,
     }
 
-def save_translation_htmls(translation_htmls: str, save_path: str = 'ignored/translations.html'):
-    translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_htmls) + '</li>\n</ol>'
+def save_translation_htmls(context_data: list[dict],
+                           translation_htmls: list[str],
+                           save_path: str = 'ignored/translations.html'):
+    translation_entries = [
+        f'<b>{context["entry_name"]}</b> ({context["meaning"]})<br>: {translations}'
+        for context, translations in zip(context_data, translation_htmls)
+    ]
+    translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_entries) + '</li>\n</ol>'
     translations_html = '<html><head><style>'
     with open('css/dict.css', 'r') as style_file:
         style = style_file.read()
@@ -81,7 +89,7 @@ from pprint import pprint
 from mwparserfromhell.parser import Parser as WikiParser
 from wikitools import wiki_to_html
 
-translation_texts = extraction_outputs['translation_texts']
+translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
 parser = WikiParser()
 
 
@@ -96,7 +104,8 @@ compiler = wiki_to_html.WikiCompiler()
 translation_htmls = compiler.convert_to_html(translation_texts)
 
 compiler.show_status()
-save_translation_htmls(translation_htmls)
+
+save_translation_htmls(extraction_outputs['translation_texts'], translation_htmls)
 
 
 

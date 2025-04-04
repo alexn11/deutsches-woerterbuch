@@ -92,7 +92,7 @@ def filter_language(pages_data: list[dict], language: str = 'German') -> list[di
     return language_pages
 
 
-def extract_translations(page_wiki: Wikicode, language: str = 'German',) -> list[dict]:
+def extract_translations(entry_name: str, page_wiki: Wikicode, language: str = 'German',) -> list[dict]:
     page_templates = page_wiki.filter_templates()
     translation_templates = [
         template for template in page_templates
@@ -125,6 +125,7 @@ def extract_translations(page_wiki: Wikicode, language: str = 'German',) -> list
         except(ValueError): # no specification of meaning
             meaning = ''
         translation = {
+            'entry_name': entry_name,
             'code': '\n'.join([str(template), '\n'.join(translation_lines), end_translation_tag]),
             'meaning': meaning,
             'translations': translation_lines[0][len(language_filter_line):].strip(),
