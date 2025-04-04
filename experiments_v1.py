@@ -61,7 +61,7 @@ def main_process(db_file_path: str = 'data/dump-data.db',
         'translation_templates': translation_templates,
     }
 
-
+#
 
 pages_data = data_extractor.prepare_pages(db_file_path, skip_parsing=True, sample_size=10_000)
 parsed_pages_data = data_extractor.parse_pages_wiki(pages_data)
@@ -94,6 +94,98 @@ templates = data_extractor.list_all_templates(translation_texts)
 extraction_outputs = main_process(db_file_path=db_file_path, sample_size=50_000,)
 translation_templates = extraction_outputs['translation_templates']
 template_names = sorted(translation_templates)
+
+
+
+# exp 1.2
+
+extraction_outputs = main_process(db_file_path=db_file_path, sample_size=124,)
+
+from pprint import pprint
+from mwparserfromhell.parser import Parser as WikiParser
+from wikitools import wiki_to_html
+
+translation_texts = extraction_outputs['translation_texts']
+parser = WikiParser()
+
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
+compiler = wiki_to_html.WikiCompiler()
+
+for t in translation_texts:
+    compiler.reset_status()
+    print(f'*** "{t}" ***')
+    h = compiler.convert_wikicode_to_html(parser.parse(t))
+    print(f' -> "{h}"')
+    print(f'ignored: {compiler.ignored_templates_ct}')
+    print(f'unexpected templates: {compiler.unexpected_templates}')
+    print(f'errors: {compiler.errors}')
+
+htmls = compiler.convert_to_html(translation_texts)
+compiler.show_status()
+
+list_of_translations = '<ol>\n<li>' + '</li>\n<li>'.join(htmls) + '</li>\n</ol>'
+
+with open('ignored/translations.html', 'w') as f:
+    f.write(list_of_translations)
+
+
+# exp 1.2.1
+
+
+extraction_outputs = main_process(db_file_path=db_file_path, sample_size=2000,)
+
+from pprint import pprint
+from mwparserfromhell.parser import Parser as WikiParser
+from wikitools import wiki_to_html
+
+translation_texts = extraction_outputs['translation_texts']
+parser = WikiParser()
+
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
+compiler = wiki_to_html.WikiCompiler()
+
+htmls = compiler.convert_to_html(translation_texts)
+compiler.show_status()
+
+list_of_translations = '<ol>\n<li>' + '</li>\n<li>'.join(htmls) + '</li>\n</ol>'
+
+translations_html = '<html><head><style>'
+translations_html += """
+.gender-indication { font-style: italic; }
+.gloss { font-style: italic;}
+.qualifier { font-style: italic; }
+.IPA { font-style: normal; } 
+"""
+translations_html += '\n</style></head><body>' + list_of_translations + '</body></html>'
+
+with open('ignored/translations.html', 'w') as f:
+    f.write(translations_html)
+
+
+
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
+compiler = wiki_to_html.WikiCompiler()
+
+htmls = compiler.convert_to_html([translation_texts[83]])
+
+
+
+
+
+
+
 
 
 

@@ -4,17 +4,25 @@ def make_simple_tag(name: str):
 def make_end_tag(name: str):
     return f'</{name}>'
 
-def make_tag(name: str, end=False, args:dict|None = None):
+def make_tag(name: str, args:dict|None = None):
     if(args is None):
-        return make_simple_tag(name, end=end)
-    tag_args = ' '.join(f'{k}="{v}"' for k,v in args) # note: yeah ignore edgecase
-    return make_simple_tag(name + ' ' + tag_args, end=end)
+        return make_simple_tag(name)
+    try:
+        tag_args = ' '.join(f'{k}="{v}"' for k,v in args.items()) # note: yeah ignore edgecase
+    except ValueError:
+        print(f'args={args}')
+        raise
+    return make_simple_tag(name + ' ' + tag_args)
 
 def make_simple_tag_block(name: str, content: str) -> str:
     return make_simple_tag(name) + content + make_end_tag(name)
 
 def make_tag_block(name: str, content: str, args: dict) -> str:
-    return make_tag(name, args=args) + content + make_end_tag(name)
+    try:
+        return make_tag(name, args=args) + content + make_end_tag(name)
+    except TypeError:
+        print(f'content="{content}" ({type(content)}) -- tag:"{name}" ({len(args)} args)')
+        raise
 
 def apply_format(format: str, content: str) -> str:
     return make_simple_tag_block(format, content)
