@@ -24,6 +24,10 @@ args: language, word
 
 link: https://en.wiktionary.org/wiki/{{word}}#{{language}}
 
+# m, mention
+
+mathrm
+
 # q
 
 within parenthesis in italic

@@ -61,6 +61,17 @@ def main_process(db_file_path: str = 'data/dump-data.db',
         'translation_templates': translation_templates,
     }
 
+def save_translation_htmls(translation_htmls: str, save_path: str = 'ignored/translations.html'):
+    translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_htmls) + '</li>\n</ol>'
+    translations_html = '<html><head><style>'
+    with open('css/dict.css', 'r') as style_file:
+        style = style_file.read()
+    translations_html += '\n' + style + '\n'
+    translations_html += '\n</style></head><body>' + translations_in_a_list + '</body></html>'
+    with open(save_path, 'w') as f:
+        f.write(translations_html)
+
+
 #
 
 pages_data = data_extractor.prepare_pages(db_file_path, skip_parsing=True, sample_size=10_000)
@@ -163,6 +174,7 @@ translations_html += """
 .gloss { font-style: italic;}
 .qualifier { font-style: italic; }
 .IPA { font-style: normal; } 
+.mention { font-style: normal; } 
 """
 translations_html += '\n</style></head><body>' + list_of_translations + '</body></html>'
 
@@ -189,18 +201,58 @@ from wikitools import html_formatter
 importlib.reload(html_formatter)
 from wikitools import wiki_urls
 importlib.reload(wiki_urls)
-compiler = wiki_to_html.WikiCompiler()
 
+
+compiler = wiki_to_html.WikiCompiler()
 htmls = compiler.convert_to_html([translation_texts[83]])
 
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
+compiler = wiki_to_html.WikiCompiler()
+
+
+problem_text = '{{t+|de|Apfelsaft|m}} {{q|may be specified as {{m|de|[[trüb]]er Apfelsaft}}}}, {{t+|de|Apfelmost|m}} {{q|rarer}}'
+
+
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
+compiler = wiki_to_html.WikiCompiler()
+
+problem_text = '{{m|de|[[trüb]]er Apfelsaft}}'
+htmls = compiler.convert_to_html([problem_text])
 
 
 
 
 
+# current
 
 
+extraction_outputs = main_process(db_file_path=db_file_path, sample_size=20_000,)
+
+from pprint import pprint
+from mwparserfromhell.parser import Parser as WikiParser
+from wikitools import wiki_to_html
+
+translation_texts = extraction_outputs['translation_texts']
+parser = WikiParser()
 
 
+importlib.reload(wiki_to_html)
+from wikitools import html_formatter
+importlib.reload(html_formatter)
+from wikitools import wiki_urls
+importlib.reload(wiki_urls)
 
+
+compiler = wiki_to_html.WikiCompiler()
+translation_htmls = compiler.convert_to_html(translation_texts)
+
+save_translation_htmls(translation_htmls)
 

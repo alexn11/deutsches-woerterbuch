@@ -54,22 +54,15 @@ class WikiCompiler:
     def parse(self, wiki_text: str) -> Wikicode:
         return self.parser.parse(wiki_text, skip_style_tags=self.skip_style_tags)
 
+
+    def process_mention_template(self, wiki: Template) -> str:
+        mention_content = wiki.get(2).value
+        return apply_span_class('mention', self.convert_wikicode_to_html(mention_content))
+
     def process_qualifier_template(self, wiki: Template) -> str:
         template_arg = wiki.get(1)
         template_arg_value = template_arg.value
-        if(wiki.startswith('{{q|may be specified as') or wiki.startswith('may be specified as')):
-            print(f'template arg="{template_arg}" ({type(template_arg)})')
-            print(f'value: "{template_arg_value}" ({type(template_arg_value)})')
-            print(f'values nodes: {len(template_arg_value.nodes)}')
-            print(template_arg_value.nodes)
-            #print(f's="{str(template_arg)}"')
-            #print(f's(value)="{str(template_arg_value)}"')
-            #raise Exception('m stopp')
         qualifier_content = self.convert_wikicode_to_html(template_arg_value)
-        if(wiki.startswith('{{q|may be specified as') or wiki.startswith('may be specified as')):
-            print('== result ==')
-            print(qualifier_content)
-            #raise Exception('mm stopp')
         self._has_link.pop()
         return apply_span_class('qualifier', f'({qualifier_content})')
 
@@ -88,7 +81,10 @@ class WikiCompiler:
                 lit_param = str(param[4:]) # NOTE: should be recursively parsed instead...
                 lit_text = f'(literally “{lit_param}”)'
             else:
-                optional_args.append(str(param)) # NOTE: should be recursively parsed instead...
+                param_str = str(param)
+                if(param_str.endswith('-p')): # plural indication
+                    param_str = param_str[:-2] + ' pl'
+                optional_args.append(param_str) # NOTE: should be recursively parsed instead...
         if(has_link):
             translation_main_bit = entry_name
         else:
@@ -119,6 +115,8 @@ class WikiCompiler:
             case 'l':
                 self._has_link[-1] = True
                 processed_wiki = process_link_template(wiki)
+            case 'm' | 'mention':
+                processed_wiki = self.process_mention_template(wiki)
             case 'q' | 'qual' | 'qualifier':
                 processed_wiki = self.process_qualifier_template(wiki)
             case 't' | 't+' | 'tt' | 'tt+':
@@ -126,25 +124,25 @@ class WikiCompiler:
             case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention':
                 processed_wiki = ''
                 self.ignored_templates_ct += 1
-            case '_':
+            case _:
                 self.unexpected_templates.append((template_name, wiki))
         return processed_wiki
 
     def convert_wikicode_to_html(self, wiki_code: Wikicode) -> str:
         processed_content = ''
-        print(f'MAIN: input="{wiki_code}" ({type(wiki_code)})')
+        #print(f'MAIN: input="{wiki_code}" ({type(wiki_code)})')
         for node in wiki_code.nodes:
-            print(f'MAIN: node="{node}"')
+            #print(f'MAIN: node="{node}"')
             if(isinstance(node, Template)):
-                print('MAIN: > template')
+                #print('MAIN: > template')
                 converted_node = self.process_template(node)
             else:
                 #just append the node as str
-                print('MAIN: > anything else')
+                #print('MAIN: > anything else')
                 converted_node = str(node)
-            print(f'MAIN: node result="{converted_node}"')
+            #print(f'MAIN: node result="{converted_node}"')
             processed_content += converted_node
-        print(f'MAIN result="{processed_content}"')
+        #print(f'MAIN result="{processed_content}"')
         return processed_content
 
     def expand_link_macros(self, wiki_text: str) -> str:

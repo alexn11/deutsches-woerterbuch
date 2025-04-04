@@ -10,6 +10,16 @@
 84. q tag with templates within: 
     `{{t+|de|Apfelsaft|m}} {{q|may be specified as {{m|de|[[trüb]]er Apfelsaft}}}}, {{t+|de|Apfelmost|m}} {{q|rarer}}`
 
+m -> unexpected template
+
+## neue sampel
+
+"n-p" -> "n pl"
+
+plurals:
+    9. Eidechsenfisch m-p
+    181. Gedärme f, Eingeweide n-p
+    241. Güter f-p, Ware f
 
 # 1.2
 
