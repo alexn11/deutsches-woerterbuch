@@ -23,6 +23,9 @@ def process_gloss_template(wiki: Template):
 def process_i_template(wiki: Template) -> str:
     return apply_span_class('italic', str(wiki.get(1)))
 
+def process_ngd_template(wiki: Template) -> str: # no idea what this is but appears in italic
+    return apply_span_class('italic', str(wiki.get(1)))
+
 def process_IPAchar_template(wiki: Template):
     return apply_span_class('IPA', wiki.get(1).value)
 
@@ -133,6 +136,8 @@ class WikiCompiler:
                 processed_wiki = process_link_template(wiki)
             case 'm' | 'mention':
                 processed_wiki = self.process_mention_template(wiki)
+            case 'ngd': # no idea what this is
+                processed_wiki = process_ngd_template(wiki)
             case 'q' | 'qual' | 'qualifier' | 'qf':
                 processed_wiki = self.process_qualifier_template(wiki)
             case 't' | 't+' | 'tt' | 'tt+':

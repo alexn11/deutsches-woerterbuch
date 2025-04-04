@@ -5,6 +5,7 @@
 - put it all together
 - search box
 - split multiword `{{t}}` templates when the page doesn't exist (requires to check the existence of the page)
+- what happens with chinese? french? other languages?
 
 # wip
 

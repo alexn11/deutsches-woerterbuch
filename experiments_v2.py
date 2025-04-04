@@ -67,10 +67,17 @@ def main_process(db_file_path: str = 'data/dump-data.db',
 def save_translation_htmls(context_data: list[dict],
                            translation_htmls: list[str],
                            save_path: str = 'ignored/translations.html'):
-    translation_entries = [
-        f'<b>{context[0]}</b> ({context[1]})<br>: {translations}'
-        for context, translations in zip(context_data, translation_htmls)
-    ]
+    translation_entries = []
+    for context, translations in zip(context_data, translation_htmls):
+        entry_name = context[0]
+        if(entry_name.endswith('/translations')):
+            entry_name = entry_name[:-13]
+        meaning = context[1]
+        translation_entry = f'<b>{entry_name}</b>'
+        if(meaning != ''):
+            translation_entry += f' ({meaning})'
+        translation_entry += f': {translations}'
+        translation_entries.append(translation_entry)
     translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_entries) + '</li>\n</ol>'
     translations_html = '<html><head><style>'
     with open('css/dict.css', 'r') as style_file:

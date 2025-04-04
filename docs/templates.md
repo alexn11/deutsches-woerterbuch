@@ -28,6 +28,11 @@ link: https://en.wiktionary.org/wiki/{{word}}#{{language}}
 
 mathrm
 
+# ngd
+
+(not sure if it's really non gloss)
+ italic
+
 # q
 
 within parenthesis in italic
