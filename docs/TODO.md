@@ -1,7 +1,9 @@
 # CURRENTLY
 
 trying to understand why the template isnt detected
-
+this:
+    q tag with templates within: 
+    `{{t+|de|Apfelsaft|m}} {{q|may be specified as {{m|de|[[trüb]]er Apfelsaft}}}}, {{t+|de|Apfelmost|m}} {{q|rarer}}`
 
 # todo
 
