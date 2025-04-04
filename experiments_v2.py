@@ -68,7 +68,7 @@ def save_translation_htmls(context_data: list[dict],
                            translation_htmls: list[str],
                            save_path: str = 'ignored/translations.html'):
     translation_entries = [
-        f'<b>{context["entry_name"]}</b> ({context["meaning"]})<br>: {translations}'
+        f'<b>{context[0]}</b> ({context[1]})<br>: {translations}'
         for context, translations in zip(context_data, translation_htmls)
     ]
     translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_entries) + '</li>\n</ol>'
