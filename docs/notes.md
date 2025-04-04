@@ -1,3 +1,8 @@
+# notes
+
+sample of 20_000 pages, gives 4790 entries with a html file size of 1.3Mb
+4775 nonempty entries (~same size)
+
 # random
 
 50 pages/s

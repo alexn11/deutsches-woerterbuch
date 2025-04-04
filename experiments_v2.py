@@ -66,9 +66,12 @@ def main_process(db_file_path: str = 'data/dump-data.db',
 
 def save_translation_htmls(context_data: list[dict],
                            translation_htmls: list[str],
-                           save_path: str = 'ignored/translations.html'):
+                           save_path: str = 'ignored/translations.html',
+                           do_sort: bool=False):
     translation_entries = []
     for context, translations in zip(context_data, translation_htmls):
+        if(translations == ''):
+            continue
         entry_name = context[0]
         if(entry_name.endswith('/translations')):
             entry_name = entry_name[:-13]
@@ -78,6 +81,8 @@ def save_translation_htmls(context_data: list[dict],
             translation_entry += f' ({meaning})'
         translation_entry += f': {translations}'
         translation_entries.append(translation_entry)
+    if(do_sort):
+        translation_entries = sorted(translation_entries, key=str.casefold)
     translations_in_a_list = '<ol>\n<li>' + '</li>\n<li>'.join(translation_entries) + '</li>\n</ol>'
     translations_html = '<html><head><style>'
     with open('css/dict.css', 'r') as style_file:
@@ -115,4 +120,5 @@ compiler.show_status()
 save_translation_htmls(extraction_outputs['translation_texts'], translation_htmls)
 
 
+save_translation_htmls(extraction_outputs['translation_texts'], translation_htmls, do_sort=True)
 
