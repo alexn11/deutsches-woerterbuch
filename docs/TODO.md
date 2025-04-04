@@ -2,7 +2,7 @@
 
 # todo
 
-- put it all together
+- alphabetic sorting, including with diachritics
 - search box
 - split multiword `{{t}}` templates when the page doesn't exist (requires to check the existence of the page)
 - what happens with chinese? french? other languages?
@@ -11,6 +11,8 @@
 
 
 # DONE
+
+- put it all together
 
 trying to understand why the template isnt detected
 this:
