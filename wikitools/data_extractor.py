@@ -188,7 +188,10 @@ def list_all_templates(pages_wiki: list[str]) -> list[dict]:
     return templates
 
 
-def split_database(db_file_path: str, save_folder: str, max_size: int = 50_000) -> list[str]:
+def split_database(db_file_path: str,
+                   save_folder: str,
+                   max_size: int = 50_000,
+                   do_overwrite=False) -> list[str]:
     # TODO: split the database in manageable chunks
     # save them in folder save_folder
     print(f'fetching pages from database')
@@ -201,6 +204,9 @@ def split_database(db_file_path: str, save_folder: str, max_size: int = 50_000) 
     db_chunk_file_paths = []
     for chunk_i in range(0, nb_rows, max_size):
         db_chunk_file_path = os.path.join(save_folder, f'{db_file_name_base}-{chunk_i:03d}.db')
+        if((not do_overwrite) and (os.path.exists(db_chunk_file_path))):
+            print(f'file already exists, skipping')
+            continue
         print(f'creating database file "{db_chunk_file_paths}"')
         create_table_from_data(db_chunk_file_path, data[chunk_i : chunk_i + max_size])
         db_chunk_file_paths.append(db_chunk_file_path)
