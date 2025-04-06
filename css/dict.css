@@ -4,5 +4,6 @@
 .italisc { font-style: italic; }
 .mention { font-style: normal; } /* mathrm */
 .qualifier { font-style: italic; }
+.sense { font-style: italic; }
 /*.translation-link*/
 /*.default-link*/

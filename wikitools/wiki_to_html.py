@@ -90,6 +90,13 @@ class WikiCompiler:
         self._has_link.pop()
         return apply_span_class('qualifier', f'({qualifier_content})')
 
+    def process_sense_template(self, wiki: Template) -> str:
+        template_arg = wiki.get(1)
+        template_arg_value = template_arg.value
+        qualifier_content = self.convert_wikicode_to_html(template_arg_value)
+        self._has_link.pop()
+        return apply_span_class('sense', f'({qualifier_content}):')
+
     def process_translation_template(self, wiki: Template) -> str:
         params = wiki.params
         language_code = params[0]
@@ -153,6 +160,8 @@ class WikiCompiler:
                     processed_wiki = process_ngd_template(wiki)
                 case 'q' | 'qual' | 'qualifier' | 'qf':
                     processed_wiki = self.process_qualifier_template(wiki)
+                case 's' | 'sense':
+                    processed_wiki = self.process_sense_template(wiki)
                 case 't' | 't+' | 'tt' | 'tt+':
                     processed_wiki = self.process_translation_template(wiki)
                 #case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention' | 'rfv-sense ' | 'not used':
