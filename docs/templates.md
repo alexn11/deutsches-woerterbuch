@@ -33,6 +33,10 @@ mathrm
 (not sure if it's really non gloss)
  italic
 
+# "not used"
+
+like no translation, skip/ignore entry
+
 # q
 
 within parenthesis in italic
@@ -46,6 +50,16 @@ within parenthesis in italic
 # qualifier
 
 within parenthesis in italic
+
+# rfv-sense
+
+"request for verification" or somthing like that (skip/ignore)
+
+# sense, s
+
+within parenthesis in italic followed by ":"
+
+German: (abstract counting): eins (de), (counting objects): ein (de)
 
 # t
 

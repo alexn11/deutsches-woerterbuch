@@ -1,12 +1,18 @@
-
 import cProfile
 import importlib
 import json
+from pprint import pprint
 
 from tqdm import tqdm
 
+from mwparserfromhell.parser import Parser as WikiParser
+
 from wikitools import data_extractor
-importlib.reload(data_extractor)
+from wikitools import wiki_to_html
+
+from wikitools import html_formatter
+from wikitools import wiki_urls
+
 
 db_file_path = 'data/dump-data.db'
 
@@ -92,33 +98,44 @@ def save_translation_htmls(context_data: list[dict],
     with open(save_path, 'w') as f:
         f.write(translations_html)
 
+
+def save_extracted_translations(context_data: list[dict],
+                                translation_htmls: list[str],
+                                save_path: str = 'ignored/translations.json',
+                                do_sort: bool=False):
+    translation_entries = []
+    for context, translations in zip(context_data, translation_htmls):
+        if(translations == ''):
+            continue
+        entry_name = str(context[0])
+        if(entry_name.endswith('/translations')):
+            entry_name = entry_name[:-13]
+        meaning = str(context[1])
+        translation_entry = {
+            'entry': entry_name,
+            'meaning': meaning,
+            'translations_html': translations,
+        }
+        translation_entries.append(translation_entry)
+    if(do_sort):
+        translation_entries = sorted(translation_entries, key=lambda e: (e['entry']+e['meaning']).casefold())
+    with open(save_path, 'w') as save_file:
+        json.dump(translation_entries, save_file)
 #
 
-
-extraction_outputs = main_process(db_file_path=db_file_path, sample_size=20_000,)
-
-from pprint import pprint
-from mwparserfromhell.parser import Parser as WikiParser
-from wikitools import wiki_to_html
-
-translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
-parser = WikiParser()
-
-
-importlib.reload(wiki_to_html)
-from wikitools import html_formatter
+importlib.reload(data_extractor)
 importlib.reload(html_formatter)
-from wikitools import wiki_urls
 importlib.reload(wiki_urls)
+importlib.reload(wiki_to_html)
 
+
+extraction_outputs = main_process(db_file_path=db_file_path, sample_size=50_000,)
+translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
 
 compiler = wiki_to_html.WikiCompiler()
 translation_htmls = compiler.convert_to_html(translation_texts)
 
-compiler.show_status()
-
-save_translation_htmls(extraction_outputs['translation_texts'], translation_htmls)
-
-
 save_translation_htmls(extraction_outputs['translation_texts'], translation_htmls, do_sort=True)
+save_extracted_translations(extraction_outputs['translation_texts'], translation_htmls, do_sort=True)
 
+compiler.show_status()

@@ -27,7 +27,7 @@ def process_ngd_template(wiki: Template) -> str: # no idea what this is but appe
     return apply_span_class('italic', str(wiki.get(1)))
 
 def process_IPAchar_template(wiki: Template):
-    return apply_span_class('IPA', wiki.get(1).value)
+    return apply_span_class('IPA', str(wiki.get(1)))
 
 def process_wikipedia_link_template(wiki: Template):
     link_text = str(wiki.get(1))
@@ -45,6 +45,15 @@ class WikiCompiler:
         self.parser = WikiParser()
         self.skip_style_tags = skip_style_tags
         self.link_target_language = link_target_language
+        self.skipped_templates = [
+            'attention',
+            'no equivalent translation',
+            'not used',
+            'rfv-sense ',
+            't-check',
+            't+check',
+            't-needed',
+        ]
         self.reset_status()
 
     def reset_status(self,):
@@ -122,33 +131,37 @@ class WikiCompiler:
         template_name = wiki.name
         processed_wiki = ''
         self._has_link.append(False)
-        match template_name:
-            case 'g':
-                processed_wiki = process_g_template(wiki)
-            case 'gloss':
-                processed_wiki = process_gloss_template(wiki)
-            case 'i':
-                processed_wiki = process_i_template(wiki)
-            case 'IPAchar':
-                processed_wiki = process_IPAchar_template(wiki)
-            case 'l':
-                self._has_link[-1] = True
-                processed_wiki = process_link_template(wiki)
-            case 'm' | 'mention':
-                processed_wiki = self.process_mention_template(wiki)
-            case 'ngd': # no idea what this is
-                processed_wiki = process_ngd_template(wiki)
-            case 'q' | 'qual' | 'qualifier' | 'qf':
-                processed_wiki = self.process_qualifier_template(wiki)
-            case 't' | 't+' | 'tt' | 'tt+':
-                processed_wiki = self.process_translation_template(wiki)
-            case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention':
-                processed_wiki = ''
-                self.ignored_templates_ct += 1
-            case 'w':
-                processed_wiki = process_wikipedia_link_template(wiki)
-            case _:
-                self.unexpected_templates.append((template_name, wiki))
+        if(template_name in self.skipped_templates):
+            processed_wiki = ''
+            self.ignored_templates_ct += 1
+        else:
+            match template_name:
+                case 'g':
+                    processed_wiki = process_g_template(wiki)
+                case 'gloss':
+                    processed_wiki = process_gloss_template(wiki)
+                case 'i':
+                    processed_wiki = process_i_template(wiki)
+                case 'IPAchar':
+                    processed_wiki = process_IPAchar_template(wiki)
+                case 'l':
+                    self._has_link[-1] = True
+                    processed_wiki = process_link_template(wiki)
+                case 'm' | 'mention':
+                    processed_wiki = self.process_mention_template(wiki)
+                case 'ngd': # no idea what this is
+                    processed_wiki = process_ngd_template(wiki)
+                case 'q' | 'qual' | 'qualifier' | 'qf':
+                    processed_wiki = self.process_qualifier_template(wiki)
+                case 't' | 't+' | 'tt' | 'tt+':
+                    processed_wiki = self.process_translation_template(wiki)
+                #case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention' | 'rfv-sense ' | 'not used':
+                #    processed_wiki = ''
+                #    self.ignored_templates_ct += 1
+                case 'w':
+                    processed_wiki = process_wikipedia_link_template(wiki)
+                case _:
+                    self.unexpected_templates.append((template_name, wiki))
         return processed_wiki
 
     def convert_wikicode_to_html(self, wiki_code: Wikicode) -> str:
