@@ -49,7 +49,7 @@ class WikiCompiler:
             'attention',
             'no equivalent translation',
             'not used',
-            'rfv-sense ',
+            'rfv-sense',
             't-check',
             't+check',
             't-needed',

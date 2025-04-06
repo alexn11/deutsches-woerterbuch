@@ -146,3 +146,8 @@ def list_all_templates(pages_wiki: list[str]) -> list[dict]:
                 continue
             templates[template_name] = [ template, page_wiki ]
     return templates
+
+def split_database(db_file_path: str, save_folder: str, split_size: int = 50_000):
+    # TODO: split the database in manageable chunks
+    # save them in folder save_folder
+    pass
