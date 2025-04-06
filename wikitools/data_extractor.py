@@ -204,10 +204,10 @@ def split_database(db_file_path: str,
     db_chunk_file_paths = []
     for chunk_i in range(0, nb_rows, max_size):
         db_chunk_file_path = os.path.join(save_folder, f'{db_file_name_base}-{chunk_i:03d}.db')
+        db_chunk_file_paths.append(db_chunk_file_path)
         if((not do_overwrite) and (os.path.exists(db_chunk_file_path))):
             print(f'file already exists, skipping')
             continue
         print(f'creating database file "{db_chunk_file_paths}"')
         create_table_from_data(db_chunk_file_path, data[chunk_i : chunk_i + max_size])
-        db_chunk_file_paths.append(db_chunk_file_path)
     return db_chunk_file_paths
