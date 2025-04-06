@@ -133,7 +133,9 @@ importlib.reload(wiki_to_html)
 chunk_paths = data_extractor.split_database(db_file_path, 'ignored', max_size=50_000)
 compiler = wiki_to_html.WikiCompiler()
 
-for chunk_i, chunk_paths in enumerate(chunk_paths):
+start_chunk_i = 0
+
+for chunk_i, chunk_paths in enumerate(chunk_paths[start_chunk_i:]):
     extraction_outputs = main_process(db_file_path=db_file_path,)
     translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
     compiler.reset_status()
