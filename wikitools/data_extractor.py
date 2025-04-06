@@ -1,3 +1,4 @@
+import os
 import random
 import sqlite3
 
@@ -7,6 +8,47 @@ from mwparserfromhell.wikicode import Wikicode
 from tqdm import tqdm
 
 end_translation_tag = '{{trans-bottom}}'
+
+#
+
+def connect_to_db(db_file_path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+    db_connection = sqlite3.connect(db_file_path)
+    db_cursor = db_connection.cursor()
+    return (db_connection, db_cursor)
+
+def create_db(db_file_path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+    return connect_to_db(db_file_path)
+
+def query_pages_from_db(db_file_path: str) -> list:
+    db_connection, db_cursor = connect_to_db(db_file_path)
+    page_rows = db_cursor.execute(f'select title, body from pages').fetchall()
+    db_connection.close()
+    return page_rows
+
+def query_all_the_data(db_file_path: str) -> list[tuple]:
+    db_connection, db_cursor = connect_to_db(db_file_path)
+    data = db_cursor.execute(f'select language, title, namespace_id, body from pages').fetchall()
+    db_connection.close()
+    return data
+
+def create_page_table(db_cursor: sqlite3.Cursor):
+    creation_command = """create table pages (
+    language TEXT,
+    title TEXT,
+    namespace_id TEXT,
+    body TEXT,
+    PRIMARY KEY(language, title, namespace_id));"""
+    db_cursor.execute(creation_command)
+
+def create_table_from_data(db_file_path: str, data: list[tuple]):
+    db_connection, db_cursor = create_db(db_file_path)
+    create_page_table(db_cursor)
+    for row in data:
+        db_cursor.execute('insert into pages(language, title, namespace_id, body) values (?, ?, ?, ?)', row)
+    db_connection.commit()
+    db_connection.close()
+
+#
 
 def make_section_header_string(language: str) -> str:
     return f'=={language}=='
@@ -38,10 +80,8 @@ def prepare_pages(db_file_path: str,
         make_section_header_string(language)
         for language in filter_languages
     ]
-    db_connection = sqlite3.connect(db_file_path)
-    db_cursor = db_connection.cursor()
     print(f'fetching pages from database')
-    page_rows = db_cursor.execute(f'select title, body from pages').fetchall()
+    page_rows = query_pages_from_db(db_file_path)
     print(f'fetched {len(page_rows):_} pages')
     pages = [
         {
@@ -147,7 +187,21 @@ def list_all_templates(pages_wiki: list[str]) -> list[dict]:
             templates[template_name] = [ template, page_wiki ]
     return templates
 
-def split_database(db_file_path: str, save_folder: str, split_size: int = 50_000):
+
+def split_database(db_file_path: str, save_folder: str, max_size: int = 50_000) -> list[str]:
     # TODO: split the database in manageable chunks
     # save them in folder save_folder
-    pass
+    print(f'fetching pages from database')
+    data = query_all_the_data(db_file_path)
+    nb_rows = len(data)
+    print(f'fetched {nb_rows:_} pages')
+    db_file_name_base = os.path.basename(db_file_path)
+    if(db_file_name_base.endswith('.db')):
+        db_file_name_base = db_file_name_base[:-3]
+    db_chunk_file_paths = []
+    for chunk_i in range(0, nb_rows, max_size):
+        db_chunk_file_path = os.path.join(save_folder, f'{db_file_name_base}-{chunk_i:03d}.db')
+        print(f'creating database file "{db_chunk_file_paths}"')
+        create_table_from_data(db_chunk_file_path, data[chunk_i : chunk_i + max_size])
+        db_chunk_file_paths.append(db_chunk_file_path)
+    return db_chunk_file_paths
