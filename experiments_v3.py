@@ -169,7 +169,10 @@ chunk_size = 80_000
 initial_offset += 7 * chunk_size
 chunk_size = 200_000
 
-tag = f'{chunk_size}'
+chunk_size = 0
+initial_offset = 0
+
+tag = f'{source_lang[:3]}-{target_lang[:3]}-{chunk_size}'
 
 chunk_i = start_chunk_i
 
