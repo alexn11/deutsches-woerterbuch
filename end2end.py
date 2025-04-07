@@ -38,7 +38,7 @@ except subprocess.CalledProcessError:
 if(initial_chunk_size == 0):
     print('🐁 copying files...')
     for ext in [ 'json', 'html', ]:
-        source_file_path = os.path.join('ignored', f'translations-{language_names_to_tag(source_lang, target_lang)}.{ext}')
+        source_file_path = os.path.join('ignored', f'translations-{language_names_to_tag(source_lang, target_lang)}-0.{ext}')
         dest_file_path = os.path.join(dest_folder, f'translations-{language_names_to_tag(source_lang, target_lang)}.{ext}')
         shutil.copyfile(source_file_path, dest_file_path)
 else:
