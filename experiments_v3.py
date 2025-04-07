@@ -136,8 +136,49 @@ def save_extracted_translations(context_data: list[dict],
         json.dump(translation_entries, save_file)
 
 
-#def run_extractions(...):
-#    ...
+def run_full_extraction(source_lang: str, target_lang: str,
+                        chunk_size: int = 0, initial_offset: int = 0, start_chunk_i: int = 0,
+                        end_chunk_i: int = -1):
+    tag = f'{source_lang[:3].lower()}-{target_lang[:3].lower()}-{chunk_size}'
+    chunk_i = start_chunk_i
+    languages = (source_lang, target_lang,)
+    compiler = wiki_to_html.WikiCompiler(link_target_language=target_lang)
+    while True:
+        extraction_outputs_chunk = main_process(db_file_path=db_file_path,
+                                                languages=languages,
+                                                max_pages_per_chunk=chunk_size,
+                                                initial_offset=initial_offset,
+                                                chunk_i=chunk_i,)
+        nb_extracted_translation_texts = len(extraction_outputs_chunk['translation_texts'])
+        if((len(extraction_outputs_chunk['pages_data']) == 0) or (nb_extracted_translation_texts == 0)):
+            break
+        chunk_real_index = chunk_i # +start_chunk_i
+        print(f'processing chunk {chunk_real_index}')
+        translation_texts = [ t[-1] for t in extraction_outputs_chunk['translation_texts'] ]
+        compiler.reset_status()
+        translation_htmls = compiler.convert_to_html(translation_texts)
+        base_path = f'ignored/translations-{"chunk-" if(chunk_size>0) else ""}{tag}'
+        html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
+        json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
+        print(f'saving html to "{html_file_path}"')
+        save_translation_htmls(extraction_outputs_chunk['translation_texts'],
+                            translation_htmls,
+                            save_path=html_file_path,
+                            do_sort=True)
+        print(f'saving data to json file: "{json_file_path}"')
+        save_extracted_translations(extraction_outputs_chunk['translation_texts'],
+                                    translation_htmls,
+                                    save_path=json_file_path,
+                                    do_sort=True)
+        compiler.show_status()
+        if(chunk_size == 0):
+            break
+        time.sleep(1.25)
+        print(f'collect: {gc.collect()}')
+        chunk_i += 1
+        if(end_chunk_i == chunk_i):
+            break
+    return nb_extracted_translation_texts
 
 #
 
@@ -146,10 +187,51 @@ importlib.reload(html_formatter)
 importlib.reload(wiki_urls)
 importlib.reload(wiki_to_html)
 
+
+source_lang = 'English'
+target_lang = 'German'
+
+chunk_size = 4000
+initial_offset = 0
+
+while True:
+    start_chunk_i = 0
+    while(True):
+        end_chunk_i = start_chunk_i + 1
+        extracted_data_indicator = run_full_extraction(source_lang, target_lang,
+                                                       chunk_size=chunk_size,
+                                                       initial_offset=initial_offset,
+                                                       start_chunk_i=start_chunk_i,
+                                                       end_chunk_i=end_chunk_i)
+        if(extracted_data_indicator == 0):
+            break
+        if(extracted_data_indicator < 800):
+            break
+        if(extracted_data_indicator > 3000):
+            break
+        start_chunk_i += 1
+    if(extracted_data_indicator == 0):
+        break
+    initial_offset += end_chunk_i * chunk_size
+    if(extracted_data_indicator < 800):
+        chunk_size *= 2
+    elif(extracted_data_indicator > 3000):
+        chunk_size = chunk_size // 2
+
+## old
+
+import sys
+sys.exit(0)
+
 start_chunk_i = 0
 
 source_lang = 'English'
 target_lang = 'German'
+
+initial_offset = 0
+chunk_size = 4_000
+
+
 
 
 # 1st run 0-52
@@ -181,47 +263,3 @@ chunk_size = 200_000
 #chunk_size = 0
 #initial_offset = 0
 #
-
-tag = f'{source_lang[:3].lower()}-{target_lang[:3].lower()}-{chunk_size}'
-
-chunk_i = start_chunk_i
-
-languages = (source_lang, target_lang,)
-compiler = wiki_to_html.WikiCompiler(link_target_language=target_lang)
-
-
-#for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
-while True:
-    extraction_outputs_chunk = main_process(db_file_path=db_file_path,
-                                            languages=languages,
-                                            max_pages_per_chunk=chunk_size,
-                                            initial_offset=initial_offset,
-                                            chunk_i=chunk_i,)
-    if((len(extraction_outputs_chunk['pages_data']) == 0) or (len(extraction_outputs_chunk['translation_texts']) == 0)):
-        break
-    chunk_real_index = chunk_i # +start_chunk_i
-    print(f'processing chunk {chunk_real_index}')
-    translation_texts = [ t[-1] for t in extraction_outputs_chunk['translation_texts'] ]
-    compiler.reset_status()
-    translation_htmls = compiler.convert_to_html(translation_texts)
-    base_path = f'ignored/translations-{"chunk-" if(chunk_size>0) else ""}{tag}'
-    html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
-    json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
-    print(f'saving html to "{html_file_path}"')
-    save_translation_htmls(extraction_outputs_chunk['translation_texts'],
-                           translation_htmls,
-                           save_path=html_file_path,
-                           do_sort=True)
-    print(f'saving data to json file: "{json_file_path}"')
-    save_extracted_translations(extraction_outputs_chunk['translation_texts'],
-                                translation_htmls,
-                                save_path=json_file_path,
-                                do_sort=True)
-    compiler.show_status()
-    if(chunk_size == 0):
-        break
-    time.sleep(1.25)
-    print(f'collect: {gc.collect()}')
-    chunk_i += 1
-
-
