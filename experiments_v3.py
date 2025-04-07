@@ -137,9 +137,9 @@ chunk_paths = data_extractor.split_database(db_file_path,
                                             do_overwrite=False)
 compiler = wiki_to_html.WikiCompiler()
 
-# 24 slow
-start_chunk_i = 25
-end_chunk_i = 28
+
+start_chunk_i = 0
+end_chunk_i = 16
 
 # 28:31 fine
 
