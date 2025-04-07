@@ -166,8 +166,12 @@ def run_full_extraction(source_lang: str, target_lang: str,
         compiler.reset_status()
         translation_htmls = compiler.convert_to_html(translation_texts)
         base_path = f'ignored/translations-{"chunk-" if(chunk_size>0) else ""}{tag}'
-        html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
-        json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
+        if(chunk_size > 0):
+            html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
+            json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
+        else:
+            html_file_path = f'{base_path}.html'
+            json_file_path = f'{base_path}.json'
         print(f'saving html to "{html_file_path}"')
         save_translation_htmls(extraction_outputs_chunk['translation_texts'],
                                translation_htmls,

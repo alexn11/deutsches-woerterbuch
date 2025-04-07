@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 import subprocess
 
 from extract_main_loop import language_names_to_tag
@@ -34,23 +35,30 @@ except subprocess.CalledProcessError:
     print('extraction failed')
     raise
 
-print('🐁 merging...')
-subprocess.run([
-    'python',
-    'json-merger.py',
-    '--source-lang', source_lang,
-    '--target-lang', target_lang,
-    '--source-folder', 'ignored',
-    '--dest-folder', dest_folder,
-    ],
-    check=True)
+if(initial_chunk_size == 0):
+    print('🐁 copying files...')
+    for ext in [ 'json', 'html', ]:
+        source_file_path = os.path.join('ignored', f'translations-{language_names_to_tag(source_lang, target_lang)}.{ext}')
+        dest_file_path = os.path.join(dest_folder, f'translations-{language_names_to_tag(source_lang, target_lang)}.{ext}')
+        shutil.copyfile(source_file_path, dest_file_path)
+else:
+    print('🐁 merging...')
+    subprocess.run([
+        'python',
+        'json-merger.py',
+        '--source-lang', source_lang,
+        '--target-lang', target_lang,
+        '--source-folder', 'ignored',
+        '--dest-folder', dest_folder,
+        ],
+        check=True)
 
-print(f'🐁 conversion to html...')
-subprocess.run([
-    'python', 'json-to-html.py',
-    '--json-file', os.path.join(dest_folder, f'translations-{language_names_to_tag(source_lang, target_lang)}.json')
-    ],
-    check=True)
+    print(f'🐁 conversion to html...')
+    subprocess.run([
+        'python', 'json-to-html.py',
+        '--json-file', os.path.join(dest_folder, f'translations-{language_names_to_tag(source_lang, target_lang)}.json')
+        ],
+        check=True)
 
 
 
