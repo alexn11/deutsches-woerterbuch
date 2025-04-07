@@ -133,7 +133,7 @@ importlib.reload(wiki_to_html)
 chunk_paths = data_extractor.split_database(db_file_path,
                                             'ignored',
                                             filter_languages=['English', 'German'],
-                                            max_size=10_000,
+                                            max_size=24_000,
                                             do_overwrite=False)
 compiler = wiki_to_html.WikiCompiler()
 
