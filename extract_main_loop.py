@@ -219,6 +219,7 @@ if(__name__ == '__main__'):
                                                         initial_offset=initial_offset,
                                                         start_chunk_i=start_chunk_i,
                                                         end_chunk_i=end_chunk_i)
+            print(f'chunk size indice: {extracted_data_indicator}')
             if(extracted_data_indicator == 0):
                 break
             if(extracted_data_indicator < 800):
