@@ -104,7 +104,7 @@ class WikiCompiler:
 
     def process_translingual_taxonomic_template(self, wiki: Template) -> str:
         self._has_link[-1] = True
-        entry_name = wiki.get(1)
+        entry_name = str(wiki.get(1))
         language = 'Translingual'
         return make_link(url=make_url(entry_name, language=language),
                          text=entry_name,
