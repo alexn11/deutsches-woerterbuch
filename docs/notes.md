@@ -1,6 +1,14 @@
+
+
 # notes
 
-sample of 20_000 pages, gives 4790 entries with a html file size of 1.3Mb
+
+- v3: merged html file is 23Mb:
+```
+pandoc -s chunks-*/*.html ---metadata title="translations" -o translations-merged.html
+```
+
+- sample of 20_000 pages, gives 4790 entries with a html file size of 1.3Mb
 4775 nonempty entries (~same size)
 
 # random

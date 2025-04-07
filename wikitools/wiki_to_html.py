@@ -52,7 +52,9 @@ class WikiCompiler:
         self.skipped_templates = [
             'attention',
             'no equivalent translation',
+            'no_equivalent_translation',
             'not used',
+            'rfgender',
             'rfv-sense',
             't-check',
             't+check',
@@ -82,7 +84,6 @@ class WikiCompiler:
     def parse(self, wiki_text: str) -> Wikicode:
         return self.parser.parse(wiki_text, skip_style_tags=self.skip_style_tags)
 
-
     def process_mention_template(self, wiki: Template) -> str:
         mention_content = wiki.get(2).value
         return apply_span_class('mention', self.convert_wikicode_to_html(mention_content))
@@ -100,6 +101,14 @@ class WikiCompiler:
         qualifier_content = self.convert_wikicode_to_html(template_arg_value)
         self._has_link.pop()
         return apply_span_class('sense', f'({qualifier_content}):')
+
+    def process_translingual_taxonomic_template(self, wiki: Template) -> str:
+        self._has_link[-1] = True
+        entry_name = wiki.get(1)
+        language = 'Translingual'
+        return make_link(url=make_url(entry_name, language=language),
+                         text=entry_name,
+                         css_class='default-link')
 
     def process_translation_template(self, wiki: Template) -> str:
         params = wiki.params
@@ -162,7 +171,7 @@ class WikiCompiler:
                     processed_wiki = self.process_mention_template(wiki)
                 case 'ngd': # no idea what this is
                     processed_wiki = process_ngd_template(wiki)
-                case 'q' | 'qual' | 'qualifier' | 'qf':
+                case 'q' | 'qual' | 'qualifier' | 'qf' | 'q-lite':
                     processed_wiki = self.process_qualifier_template(wiki)
                 case 's' | 'sense':
                     processed_wiki = self.process_sense_template(wiki)
@@ -171,6 +180,8 @@ class WikiCompiler:
                 #case 't-check' | 't+check' | 't-needed' | 'no equivalent translation' | 'attention' | 'rfv-sense ' | 'not used':
                 #    processed_wiki = ''
                 #    self.ignored_templates_ct += 1
+                case 'taxfmt':
+                    processed_wiki = self.process_translingual_taxonomic_template(wiki)
                 case 'w':
                     processed_wiki = process_wikipedia_link_template(wiki)
                 case _:

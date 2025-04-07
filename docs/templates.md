@@ -4,6 +4,13 @@ explicit links:
 - `[[word]]` https://en.wiktionary.org/wiki/{{word}}
 - `[[word#language|word]]` https://en.wiktionary.org/wiki/{{word}}#{{language}}
 
+# a
+
+???
+samples:
+- {{a|colloquial|chiefly northern and central Germany}}
+- {{a|scientific}}
+
 # g
 
 italic
@@ -37,17 +44,7 @@ mathrm
 
 like no translation, skip/ignore entry
 
-# q
-
-within parenthesis in italic
-
-(=qualifier)
-
-# qual
-
-(=qualifier)
-
-# qualifier
+# q, qual, qualifier, q-lite
 
 within parenthesis in italic
 
@@ -86,6 +83,10 @@ https://{{language code}}.wiktionary.org/wiki/{{entry name}}
 
 between the main link & the optional args
 
+# taxfmt
+
+taxonomy, translingual: do not make a link (or a link with lang="Tanslingual"), show in italic
+
 # tt, tt+
 
 "tt" = "t"
@@ -93,7 +94,7 @@ between the main link & the optional args
 
 (some wiki technical thing related to lua and memory usage)
 
-# t+check, t-check, t-needed, no equivalent translation, attention
+# t+check, t-check, t-needed, no equivalent translation, attention, no_equivalent_translation, rfgender
 
 drop these
 
