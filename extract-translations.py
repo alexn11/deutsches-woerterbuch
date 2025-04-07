@@ -23,6 +23,7 @@ arg_parser.add_argument('--source-lang', type=str, default='English')
 arg_parser.add_argument('--target-lang', type=str, default='German')
 arg_parser.add_argument('--initial-chunk-size', type=int, default=4000)
 arg_parser.add_argument('--initial-offset', type=int, default=0)
+arg_parser.add_argument('--first-chunk-index', type=int, default=0)
 parsed_args = arg_parser.parse_args()
 
 db_file_path = parsed_args.db_file
@@ -30,7 +31,7 @@ source_lang = parsed_args.source_lang
 target_lang = parsed_args.target_lang
 initial_chunk_size = parsed_args.initial_chunk_size
 initial_offset = parsed_args.initial_offset
-
+first_chunk_index = parsed_args.first_chunk_index
 
 #
 
@@ -201,7 +202,7 @@ def run_full_extraction(source_lang: str, target_lang: str,
 chunk_size = initial_chunk_size
 
 while True:
-    start_chunk_i = 0
+    start_chunk_i = first_chunk_index
     while(True):
         end_chunk_i = start_chunk_i + 1
         extracted_data_indicator = run_full_extraction(source_lang, target_lang,
@@ -223,3 +224,4 @@ while True:
         chunk_size *= 2
     elif(extracted_data_indicator > 3000):
         chunk_size = chunk_size // 2
+    start_chunk_i = 0
