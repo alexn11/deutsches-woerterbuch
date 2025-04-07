@@ -210,6 +210,9 @@ if(__name__ == '__main__'):
 
     chunk_size = initial_chunk_size
 
+    low_indicator_level = 1000
+    high_indicator_level = 4000
+
     while True:
         start_chunk_i = first_chunk_index
         while(True):
@@ -222,16 +225,16 @@ if(__name__ == '__main__'):
             print(f'chunk size indice: {extracted_data_indicator}')
             if(extracted_data_indicator == 0):
                 break
-            if(extracted_data_indicator < 800):
+            if(extracted_data_indicator < low_indicator_level):
                 break
-            if(extracted_data_indicator > 3000):
+            if(extracted_data_indicator > high_indicator_level):
                 break
             start_chunk_i += 1
         if(extracted_data_indicator == 0):
             break
         initial_offset += end_chunk_i * chunk_size
-        if(extracted_data_indicator < 800):
+        if(extracted_data_indicator < low_indicator_level):
             chunk_size *= 2
-        elif(extracted_data_indicator > 3000):
+        elif(extracted_data_indicator > high_indicator_level):
             chunk_size = chunk_size // 2
         start_chunk_i = 0
