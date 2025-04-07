@@ -9,11 +9,13 @@ arg_parser.add_argument('--source-lang', type=str, default='English', help='sour
 arg_parser.add_argument('--target-lang', type=str, default='German', help='target language')
 arg_parser.add_argument('--db-file', type=str, default='data/dump-data.db', help='dump sqlite file')
 arg_parser.add_argument('--dest-folder', type=str, default='data', help='destination folder')
+arg_parser.add_argument('--initial-chunk-size', type=int, default=4000)
 parsed_args = arg_parser.parse_args()
 source_lang = parsed_args.source_lang
 target_lang = parsed_args.target_lang
 db_file_path = parsed_args.db_file
 dest_folder = parsed_args.dest_folder
+initial_chunk_size = parsed_args.initial_chunk_size
 
 os.makedirs('ignored', exist_ok=True)
 
@@ -25,6 +27,7 @@ try:
         '--db-file', db_file_path,
         '--source-lang', source_lang,
         '--target-lang', target_lang,
+        '--initial-chunk-size', initial_chunk_size,
         ],
         check=True,)
 except subprocess.CalledProcessError:
