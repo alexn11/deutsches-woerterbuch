@@ -1,7 +1,9 @@
 import cProfile
+import gc
 import importlib
 import json
 from pprint import pprint
+import time
 
 from tqdm import tqdm
 
@@ -19,7 +21,9 @@ db_file_path = 'data/dump-data.db'
 def main_process(db_file_path: str = 'data/dump-data.db',
                  sample_size: int = 0,
                  pages_data: list = None,
-                 steps: list = None):
+                 steps: list = None,
+                 max_pages_per_chunk: int = 0,
+                 chunk_i: int = 0):
     data_sizes = {
         'init': len(pages_data) if(pages_data) else 0,
     }
@@ -28,7 +32,11 @@ def main_process(db_file_path: str = 'data/dump-data.db',
     print(f'running steps: {steps}')
     if('load' in steps):
         print('loading...')
-        pages_data = data_extractor.prepare_pages(db_file_path, skip_parsing=True, sample_size=sample_size)
+        pages_data = data_extractor.prepare_pages(db_file_path,
+                                                  skip_parsing=True,
+                                                  sample_size=sample_size,
+                                                  max_pages_per_chunk=max_pages_per_chunk,
+                                                  chunk_i=chunk_i)
         data_sizes['load'] = len(pages_data)
     if('parse' in steps):
         print('parsing...')
@@ -130,36 +138,40 @@ importlib.reload(wiki_to_html)
 
 
 
-chunk_paths = data_extractor.split_database(db_file_path,
-                                            'ignored',
-                                            filter_languages=['English', 'German'],
-                                            max_size=24_000,
-                                            do_overwrite=False)
 compiler = wiki_to_html.WikiCompiler()
 
 
 start_chunk_i = 0
-end_chunk_i = 16
+#end_chunk_i = 16
 
-# 28:31 fine
-
-for chunk_i, chunk_path in enumerate(chunk_paths[start_chunk_i:end_chunk_i]):
-    chunk_real_index = chunk_i+start_chunk_i
-    print(f'processing chunk {chunk_real_index} ("{chunk_path})')
-    extraction_outputs = main_process(db_file_path=chunk_path,)
-    translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
+chunk_i = start_chunk_i
+#for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
+while True:
+    extraction_outputs_chunk = main_process(db_file_path=db_file_path,
+                                            max_pages_per_chunk=4_000,
+                                            chunk_i=chunk_i,)
+    if(len(extraction_outputs_chunk) == 0):
+        break
+    chunk_real_index = chunk_i # +start_chunk_i
+    print(f'processing chunk {chunk_real_index}')
+    translation_texts = [ t[-1] for t in extraction_outputs_chunk['translation_texts'] ]
     compiler.reset_status()
     translation_htmls = compiler.convert_to_html(translation_texts)
     html_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.html'
     json_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.json'
     print(f'saving html to "{html_file_path}"')
-    save_translation_htmls(extraction_outputs['translation_texts'],
+    save_translation_htmls(extraction_outputs_chunk['translation_texts'],
                            translation_htmls,
                            save_path=html_file_path,
                            do_sort=True)
     print(f'saving data to json file: "{json_file_path}"')
-    save_extracted_translations(extraction_outputs['translation_texts'],
+    save_extracted_translations(extraction_outputs_chunk['translation_texts'],
                                 translation_htmls,
                                 save_path=json_file_path,
                                 do_sort=True)
     compiler.show_status()
+    time.sleep(1.25)
+    print(f'collect: {gc.collect()}')
+    chunk_i += 1
+
+

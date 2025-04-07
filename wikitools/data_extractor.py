@@ -20,9 +20,14 @@ def connect_to_db(db_file_path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor
 def create_db(db_file_path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     return connect_to_db(db_file_path)
 
-def query_pages_from_db(db_file_path: str) -> list:
+def query_pages_from_db(db_file_path: str, limit: int = 0, offset: int = 0) -> list:
     db_connection, db_cursor = connect_to_db(db_file_path)
-    page_rows = db_cursor.execute(f'select title, body from pages').fetchall()
+    query = 'select title, body from pages'
+    if(limit > 0):
+        query += f' limit {limit:d}'
+        if(offset > 0):
+            query += f' offset {offset:d}'
+    page_rows = db_cursor.execute(query).fetchall()
     db_connection.close()
     return page_rows
 
@@ -95,10 +100,13 @@ def filter_query_results(filter_languages: list[str],
 def prepare_pages(db_file_path: str,
                   filter_languages: list[str] = ['English', 'German'],
                   sample_size: int = 0,
-                  skip_parsing=False) -> list[dict]:
+                  skip_parsing=False,
+                  max_pages_per_chunk: int = 0,
+                  chunk_i: int = 0) -> list[dict]:
     # note: 1st language in the list is the base language, 2nd is the target language
     print(f'fetching pages from database')
-    page_rows = query_pages_from_db(db_file_path)
+    query_offset = chunk_i * max_pages_per_chunk
+    page_rows = query_pages_from_db(db_file_path, limit=max_pages_per_chunk, offset=query_offset)
     print(f'fetched {len(page_rows):_} pages')
     pages = filter_query_results(filter_languages, page_rows, filter_column_i=1)
     pages = [
