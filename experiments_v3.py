@@ -169,13 +169,18 @@ initial_offset += 7 * chunk_size
 chunk_size = 200_000
 
 
+# new run
+initial_offset = 0
+chunk_size = 200_000
+
 
 
 # other experiments
-source_lang = 'English'
-target_lang = 'Cherokee'
-chunk_size = 0
-initial_offset = 0
+#source_lang = 'English'
+#target_lang = 'French'
+#chunk_size = 0
+#initial_offset = 0
+#
 
 tag = f'{source_lang[:3].lower()}-{target_lang[:3].lower()}-{chunk_size}'
 
