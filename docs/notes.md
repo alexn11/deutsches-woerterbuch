@@ -1,3 +1,35 @@
+# HOW TO RUN
+
+(in wiki venv)
+
+## end to end
+
+note: source-lang should always be  `English`
+
+- copy the extracted data from the dump in a file somewhere: eg `data/dump-data.db`
+- run the end to end script:
+    ```bash
+    python end2end.py --db-file data/dump-data.db --dest-folder data --target-lang German
+    ```
+
+
+## the step by step way
+
+- copy the extracted data from the dump in a file somewhere: eg `data/dump-data.db`
+- run the main extraction (can be long and perillous):
+    ```bash
+    python extract_main_loop.py --db-file data/dump-data.db --source-lang English --target-lang German
+    ```
+- now there's plenty of chunk in the `ignored` folder (i could add an argument to choose the folder, maybe one day)
+- they need to be assembled together to form a single file, run
+    ```bash
+    python json-merger.py --source-lang English --target-lang German --source-folder ignored --dest-folder data
+    ```
+- this file can then be converted into html
+    ```bash
+    python json-to-html.py --json-file data/translations-eng-ger.json
+    ```
+- TODO: this whole thing should just be a single script (done, see above)
 
 
 # notes

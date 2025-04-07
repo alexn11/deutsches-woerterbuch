@@ -3,6 +3,8 @@ import glob
 import json
 import os
 
+from extract_main_loop import language_names_to_tag
+
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('--source-lang', type=str, default='English', help='source language')
 arg_parser.add_argument('--target-lang', type=str, default='German', help='target language')
@@ -15,7 +17,7 @@ target_lang = parsed_args.target_lang
 source_folder = parsed_args.source_folder
 dest_folder = parsed_args.dest_folder
 
-basename_pattern = f'translations-chunk-{source_lang[:3].lower()}-{target_lang[:3].lower()}-*.json'
+basename_pattern = f'translations-chunk-{language_names_to_tag(source_lang, target_lang)}-*.json'
 file_pattern = os.path.join(source_folder, basename_pattern)
 
 data = []
@@ -27,7 +29,7 @@ for file_path in glob.glob(file_pattern):
 
 data = sorted(data, key=lambda e: (e['entry']+e['meaning']).casefold())
 
-dest_file_path = os.path.join(dest_folder, f'translations-{source_lang[:3].lower()}-{target_lang[:3].lower()}.json')
+dest_file_path = os.path.join(dest_folder, f'translations-{language_names_to_tag(source_lang, target_lang)}.json')
 with(open(dest_file_path, 'w', encoding='utf-8')) as json_file:
     json.dump(data, json_file, ensure_ascii=False, indent=2)
 
