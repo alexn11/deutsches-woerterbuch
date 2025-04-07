@@ -134,6 +134,11 @@ def save_extracted_translations(context_data: list[dict],
         translation_entries = sorted(translation_entries, key=lambda e: (e['entry']+e['meaning']).casefold())
     with open(save_path, 'w') as save_file:
         json.dump(translation_entries, save_file)
+
+
+#def run_extractions(...):
+#    ...
+
 #
 
 importlib.reload(data_extractor)
@@ -141,17 +146,11 @@ importlib.reload(html_formatter)
 importlib.reload(wiki_urls)
 importlib.reload(wiki_to_html)
 
-
+start_chunk_i = 0
 
 source_lang = 'English'
 target_lang = 'German'
-languages = (source_lang, target_lang,)
 
-compiler = wiki_to_html.WikiCompiler(link_target_language=target_lang)
-
-
-start_chunk_i = 0
-#end_chunk_i = 16
 
 # 1st run 0-52
 initial_offset = 0
@@ -169,12 +168,22 @@ chunk_size = 80_000
 initial_offset += 7 * chunk_size
 chunk_size = 200_000
 
+
+
+
+# other experiments
+source_lang = 'English'
+target_lang = 'Cherokee'
 chunk_size = 0
 initial_offset = 0
 
-tag = f'{source_lang[:3]}-{target_lang[:3]}-{chunk_size}'
+tag = f'{source_lang[:3].lower()}-{target_lang[:3].lower()}-{chunk_size}'
 
 chunk_i = start_chunk_i
+
+languages = (source_lang, target_lang,)
+compiler = wiki_to_html.WikiCompiler(link_target_language=target_lang)
+
 
 #for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
 while True:
@@ -183,14 +192,14 @@ while True:
                                             max_pages_per_chunk=chunk_size,
                                             initial_offset=initial_offset,
                                             chunk_i=chunk_i,)
-    if(len(extraction_outputs_chunk['translation_texts']) == 0):
+    if((len(extraction_outputs_chunk['pages_data']) == 0) or (len(extraction_outputs_chunk['translation_texts']) == 0)):
         break
     chunk_real_index = chunk_i # +start_chunk_i
     print(f'processing chunk {chunk_real_index}')
     translation_texts = [ t[-1] for t in extraction_outputs_chunk['translation_texts'] ]
     compiler.reset_status()
     translation_htmls = compiler.convert_to_html(translation_texts)
-    base_path = f'ignored/translations-chunk-{tag}'
+    base_path = f'ignored/translations-{"chunk-" if(chunk_size>0) else ""}{tag}'
     html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
     json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
     print(f'saving html to "{html_file_path}"')
@@ -204,6 +213,8 @@ while True:
                                 save_path=json_file_path,
                                 do_sort=True)
     compiler.show_status()
+    if(chunk_size == 0):
+        break
     time.sleep(1.25)
     print(f'collect: {gc.collect()}')
     chunk_i += 1

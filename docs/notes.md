@@ -2,7 +2,7 @@
 
 # notes
 
-
+- v3 works fine with EN->Nahuatl ! (813 pages, 812 translations)
 - v3: merged html file is 23Mb:
 ```
 pandoc -s chunks-*/*.html ---metadata title="translations" -o translations-merged.html

@@ -2,10 +2,11 @@
 
 # todo
 
-- alphabetic sorting, including with diachritics
 - search box
+- rerun german process with newest macro porcesses
 - split multiword `{{t}}` templates when the page doesn't exist (requires to check the existence of the page)
 - what happens with chinese? french? other languages?
+- alphabetic sorting, including with diachritics
 
 # wip
 
