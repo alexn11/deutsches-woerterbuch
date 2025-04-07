@@ -1,6 +1,7 @@
 import os
 import random
 import sqlite3
+from typing import Literal
 
 from mwparserfromhell import parse as wikicode_parse
 from mwparserfromhell.parser import Parser as WikicodeParser
@@ -71,30 +72,41 @@ def parse_pages_wiki(pages: list[dict]) -> list[dict]:
         page['wikicode'] = parser.parse(page['body'], context=0, skip_style_tags=True)
     return pages
 
+def filter_query_results(filter_languages: list[str],
+                         pages_data: list[tuple],
+                         filter_column_i: int = 0,) -> list[tuple]:
+    # NOTE: i could just apply these filters directy in the sql query...
+    language_quick_filters = [
+        make_section_header_string(language)
+        for language in filter_languages
+    ]
+    pages = [
+        page
+        for page in tqdm(pages_data)
+        if(quick_page_filter(page[filter_column_i], language_quick_filters)
+           and
+           finer_quick_filter(page[filter_column_i],
+                              language_quick_filters[0],
+                              [ make_translation_line_string(filter_languages[1]),
+                               '{{trans-top' ])) # wiki parse is very slow
+    ]
+    return pages
+
 def prepare_pages(db_file_path: str,
                   filter_languages: list[str] = ['English', 'German'],
                   sample_size: int = 0,
                   skip_parsing=False) -> list[dict]:
     # note: 1st language in the list is the base language, 2nd is the target language
-    language_quick_filters = [
-        make_section_header_string(language)
-        for language in filter_languages
-    ]
     print(f'fetching pages from database')
     page_rows = query_pages_from_db(db_file_path)
     print(f'fetched {len(page_rows):_} pages')
+    pages = filter_query_results(filter_languages, page_rows, filter_column_i=1)
     pages = [
         {
             'title': page[0],
             'body': page[1],
         }
-        for page in tqdm(page_rows)
-        if(quick_page_filter(page[1], language_quick_filters)
-           and
-           finer_quick_filter(page[1],
-                              language_quick_filters[0],
-                              [ make_translation_line_string(filter_languages[1]),
-                               '{{trans-top' ])) # wiki parse is very slow
+        for page in pages
     ]
     print(f'filtered down to {len(pages):_} pages')
     if(sample_size > 0):
@@ -191,6 +203,7 @@ def list_all_templates(pages_wiki: list[str]) -> list[dict]:
 def split_database(db_file_path: str,
                    save_folder: str,
                    max_size: int = 50_000,
+                   filter_languages=None,
                    do_overwrite=False) -> list[str]:
     # TODO: split the database in manageable chunks
     # save them in folder save_folder
@@ -198,6 +211,10 @@ def split_database(db_file_path: str,
     data = query_all_the_data(db_file_path)
     nb_rows = len(data)
     print(f'fetched {nb_rows:_} pages')
+    if(filter_languages is not None):
+        data = filter_query_results(filter_languages, data, filter_column_i=3)
+        nb_rows = len(data)
+        print(f'filtered down to {nb_rows:_} pages')
     db_file_name_base = os.path.basename(db_file_path)
     if(db_file_name_base.endswith('.db')):
         db_file_name_base = db_file_name_base[:-3]

@@ -130,19 +130,28 @@ importlib.reload(wiki_to_html)
 
 
 
-chunk_paths = data_extractor.split_database(db_file_path, 'ignored', max_size=50_000, do_overwrite=False)
+chunk_paths = data_extractor.split_database(db_file_path,
+                                            'ignored',
+                                            filter_languages=['English', 'German'],
+                                            max_size=10_000,
+                                            do_overwrite=False)
 compiler = wiki_to_html.WikiCompiler()
 
-start_chunk_i = 0
+# 24 slow
+start_chunk_i = 25
+end_chunk_i = 28
 
-for chunk_i, chunk_path in enumerate(chunk_paths[start_chunk_i:]):
-    print(f'processing chunk {chunk_i} ("{chunk_path})')
+# 28:31 fine
+
+for chunk_i, chunk_path in enumerate(chunk_paths[start_chunk_i:end_chunk_i]):
+    chunk_real_index = chunk_i+start_chunk_i
+    print(f'processing chunk {chunk_real_index} ("{chunk_path})')
     extraction_outputs = main_process(db_file_path=chunk_path,)
     translation_texts = [ t[-1] for t in extraction_outputs['translation_texts'] ]
     compiler.reset_status()
     translation_htmls = compiler.convert_to_html(translation_texts)
-    html_file_path = f'ignored/translations-chunk-{chunk_i:02d}.html'
-    json_file_path = f'ignored/translations-chunk-{chunk_i:02d}.json'
+    html_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.html'
+    json_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.json'
     print(f'saving html to "{html_file_path}"')
     save_translation_htmls(extraction_outputs['translation_texts'],
                            translation_htmls,
