@@ -158,16 +158,21 @@ chunk_size = 20_000
 initial_offset += 5 * chunk_size
 chunk_size = 80_000
 
+# 4th run
+initial_offset += 7 * chunk_size
+chunk_size = 200_000
+
 tag = f'{chunk_size}'
 
 chunk_i = start_chunk_i
+
 #for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
 while True:
     extraction_outputs_chunk = main_process(db_file_path=db_file_path,
                                             max_pages_per_chunk=chunk_size,
                                             initial_offset=initial_offset,
                                             chunk_i=chunk_i,)
-    if(len(extraction_outputs_chunk) == 0):
+    if(len(extraction_outputs_chunk['translation_texts']) == 0):
         break
     chunk_real_index = chunk_i # +start_chunk_i
     print(f'processing chunk {chunk_real_index}')
