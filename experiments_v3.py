@@ -19,12 +19,14 @@ from wikitools import wiki_urls
 db_file_path = 'data/dump-data.db'
 
 def main_process(db_file_path: str = 'data/dump-data.db',
+                 languages: tuple[str] = ('English', 'German',),
                  sample_size: int = 0,
                  pages_data: list = None,
                  steps: list = None,
                  max_pages_per_chunk: int = 0,
                  initial_offset: int = 0,
                  chunk_i: int = 0):
+    source_lang, target_lang = languages
     data_sizes = {
         'init': len(pages_data) if(pages_data) else 0,
     }
@@ -34,6 +36,7 @@ def main_process(db_file_path: str = 'data/dump-data.db',
     if('load' in steps):
         print('loading...')
         pages_data = data_extractor.prepare_pages(db_file_path,
+                                                  filter_languages=languages,
                                                   skip_parsing=True,
                                                   sample_size=sample_size,
                                                   max_pages_per_chunk=max_pages_per_chunk,
@@ -44,12 +47,12 @@ def main_process(db_file_path: str = 'data/dump-data.db',
         print('parsing...')
         pages_data = data_extractor.parse_pages_wiki(pages_data)
         data_sizes['parse'] = len(pages_data)
-    english_pages = None
-    german_pages = None
+    source_lang_pages = None
+    target_lang_pages = None
     if('filter-language' in steps):
         print('filtering for languages...')
-        english_pages = data_extractor.filter_language(pages_data, language='English')
-        german_pages = data_extractor.filter_language(pages_data, language='German')
+        source_lang_pages = data_extractor.filter_language(pages_data, language=source_lang)
+        target_lang_pages = data_extractor.filter_language(pages_data, language=target_lang)
     translations = None
     translation_texts = None
     if('translations' in steps):
@@ -57,8 +60,8 @@ def main_process(db_file_path: str = 'data/dump-data.db',
         translations = [
             data_extractor.extract_translations(english_page['title'],
                                                 english_page['wikicode'],
-                                                language='German')
-            for english_page in tqdm(english_pages)
+                                                language=target_lang)
+            for english_page in tqdm(source_lang_pages)
         ]
         data_sizes['translations-extract'] = len(translations)
         translation_texts = []
@@ -73,8 +76,8 @@ def main_process(db_file_path: str = 'data/dump-data.db',
     return {
         'data_sizes': data_sizes,
         'pages_data': pages_data,
-        'english_pages': english_pages,
-        'german_pages': german_pages,
+        'source_lang_pages': source_lang_pages,
+        'target_lang_pages': target_lang_pages,
         'translations': translations,
         'translation_texts': translation_texts,
         'translation_templates': translation_templates,
@@ -140,7 +143,11 @@ importlib.reload(wiki_to_html)
 
 
 
-compiler = wiki_to_html.WikiCompiler()
+source_lang = 'English'
+target_lang = 'German'
+languages = (source_lang, target_lang,)
+
+compiler = wiki_to_html.WikiCompiler(link_target_language=target_lang)
 
 
 start_chunk_i = 0
@@ -169,6 +176,7 @@ chunk_i = start_chunk_i
 #for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
 while True:
     extraction_outputs_chunk = main_process(db_file_path=db_file_path,
+                                            languages=languages,
                                             max_pages_per_chunk=chunk_size,
                                             initial_offset=initial_offset,
                                             chunk_i=chunk_i,)
