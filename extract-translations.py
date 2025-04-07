@@ -17,21 +17,6 @@ from wikitools import html_formatter
 from wikitools import wiki_urls
 
 
-arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('--db-file', type=str, default='data/dump-data.db', help='data base file (sqlite3 file) containing the table "pages"')
-arg_parser.add_argument('--source-lang', type=str, default='English')
-arg_parser.add_argument('--target-lang', type=str, default='German')
-arg_parser.add_argument('--initial-chunk-size', type=int, default=4000)
-arg_parser.add_argument('--initial-offset', type=int, default=0)
-arg_parser.add_argument('--first-chunk-index', type=int, default=0)
-parsed_args = arg_parser.parse_args()
-
-db_file_path = parsed_args.db_file
-source_lang = parsed_args.source_lang
-target_lang = parsed_args.target_lang
-initial_chunk_size = parsed_args.initial_chunk_size
-initial_offset = parsed_args.initial_offset
-first_chunk_index = parsed_args.first_chunk_index
 
 #
 
@@ -199,29 +184,47 @@ def run_full_extraction(source_lang: str, target_lang: str,
 
 #
 
-chunk_size = initial_chunk_size
+if(__name__ == '__main__'):
 
-while True:
-    start_chunk_i = first_chunk_index
-    while(True):
-        end_chunk_i = start_chunk_i + 1
-        extracted_data_indicator = run_full_extraction(source_lang, target_lang,
-                                                       chunk_size=chunk_size,
-                                                       initial_offset=initial_offset,
-                                                       start_chunk_i=start_chunk_i,
-                                                       end_chunk_i=end_chunk_i)
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--db-file', type=str, default='data/dump-data.db', help='data base file (sqlite3 file) containing the table "pages"')
+    arg_parser.add_argument('--source-lang', type=str, default='English')
+    arg_parser.add_argument('--target-lang', type=str, default='German')
+    arg_parser.add_argument('--initial-chunk-size', type=int, default=4000)
+    arg_parser.add_argument('--initial-offset', type=int, default=0)
+    arg_parser.add_argument('--first-chunk-index', type=int, default=0)
+    parsed_args = arg_parser.parse_args()
+
+    db_file_path = parsed_args.db_file
+    source_lang = parsed_args.source_lang
+    target_lang = parsed_args.target_lang
+    initial_chunk_size = parsed_args.initial_chunk_size
+    initial_offset = parsed_args.initial_offset
+    first_chunk_index = parsed_args.first_chunk_index
+
+    chunk_size = initial_chunk_size
+
+    while True:
+        start_chunk_i = first_chunk_index
+        while(True):
+            end_chunk_i = start_chunk_i + 1
+            extracted_data_indicator = run_full_extraction(source_lang, target_lang,
+                                                        chunk_size=chunk_size,
+                                                        initial_offset=initial_offset,
+                                                        start_chunk_i=start_chunk_i,
+                                                        end_chunk_i=end_chunk_i)
+            if(extracted_data_indicator == 0):
+                break
+            if(extracted_data_indicator < 800):
+                break
+            if(extracted_data_indicator > 3000):
+                break
+            start_chunk_i += 1
         if(extracted_data_indicator == 0):
             break
+        initial_offset += end_chunk_i * chunk_size
         if(extracted_data_indicator < 800):
-            break
-        if(extracted_data_indicator > 3000):
-            break
-        start_chunk_i += 1
-    if(extracted_data_indicator == 0):
-        break
-    initial_offset += end_chunk_i * chunk_size
-    if(extracted_data_indicator < 800):
-        chunk_size *= 2
-    elif(extracted_data_indicator > 3000):
-        chunk_size = chunk_size // 2
-    start_chunk_i = 0
+            chunk_size *= 2
+        elif(extracted_data_indicator > 3000):
+            chunk_size = chunk_size // 2
+        start_chunk_i = 0
