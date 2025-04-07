@@ -102,10 +102,11 @@ def prepare_pages(db_file_path: str,
                   sample_size: int = 0,
                   skip_parsing=False,
                   max_pages_per_chunk: int = 0,
+                  initial_offset: int = 0,
                   chunk_i: int = 0) -> list[dict]:
     # note: 1st language in the list is the base language, 2nd is the target language
     print(f'fetching pages from database')
-    query_offset = chunk_i * max_pages_per_chunk
+    query_offset = initial_offset + chunk_i * max_pages_per_chunk
     page_rows = query_pages_from_db(db_file_path, limit=max_pages_per_chunk, offset=query_offset)
     print(f'fetched {len(page_rows):_} pages')
     pages = filter_query_results(filter_languages, page_rows, filter_column_i=1)

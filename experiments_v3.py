@@ -23,6 +23,7 @@ def main_process(db_file_path: str = 'data/dump-data.db',
                  pages_data: list = None,
                  steps: list = None,
                  max_pages_per_chunk: int = 0,
+                 initial_offset: int = 0,
                  chunk_i: int = 0):
     data_sizes = {
         'init': len(pages_data) if(pages_data) else 0,
@@ -36,6 +37,7 @@ def main_process(db_file_path: str = 'data/dump-data.db',
                                                   skip_parsing=True,
                                                   sample_size=sample_size,
                                                   max_pages_per_chunk=max_pages_per_chunk,
+                                                  initial_offset=initial_offset,
                                                   chunk_i=chunk_i)
         data_sizes['load'] = len(pages_data)
     if('parse' in steps):
@@ -144,11 +146,26 @@ compiler = wiki_to_html.WikiCompiler()
 start_chunk_i = 0
 #end_chunk_i = 16
 
+# 1st run 0-52
+initial_offset = 0
+chunk_size = 4_000
+
+# 2nd run
+initial_offset = 4_000 * 53
+chunk_size = 20_000
+
+# 3rd run
+initial_offset += 5 * chunk_size
+chunk_size = 80_000
+
+tag = f'{chunk_size}'
+
 chunk_i = start_chunk_i
 #for chunk_i, extraction_outputs_chunk in enumerate(extraction_outputs_chunks[start_chunk_i:end_chunk_i]):
 while True:
     extraction_outputs_chunk = main_process(db_file_path=db_file_path,
-                                            max_pages_per_chunk=4_000,
+                                            max_pages_per_chunk=chunk_size,
+                                            initial_offset=initial_offset,
                                             chunk_i=chunk_i,)
     if(len(extraction_outputs_chunk) == 0):
         break
@@ -157,8 +174,9 @@ while True:
     translation_texts = [ t[-1] for t in extraction_outputs_chunk['translation_texts'] ]
     compiler.reset_status()
     translation_htmls = compiler.convert_to_html(translation_texts)
-    html_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.html'
-    json_file_path = f'ignored/translations-chunk-{chunk_real_index:02d}.json'
+    base_path = f'ignored/translations-chunk-{tag}'
+    html_file_path = f'{base_path}-{chunk_real_index:02d}.html'
+    json_file_path = f'{base_path}-{chunk_real_index:02d}.json'
     print(f'saving html to "{html_file_path}"')
     save_translation_htmls(extraction_outputs_chunk['translation_texts'],
                            translation_htmls,

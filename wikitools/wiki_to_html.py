@@ -31,10 +31,14 @@ def process_IPAchar_template(wiki: Template):
 
 def process_wikipedia_link_template(wiki: Template):
     link_text = str(wiki.get(1))
-    if(len(wiki.params) > 1):
-        entry_name = str(wiki.get(2))
-    else:
+    if((len(wiki.params) == 1) or wiki.has_param('lang')):
         entry_name = link_text
+    else:
+        try:
+            entry_name = str(wiki.get(2))
+        except ValueError:
+            print(f'*** wiki={wiki}, params={wiki.params}')
+            raise
     return make_link(url=make_wikipedia_url(entry_name),
                      text=link_text,
                      css_class='default-link')
