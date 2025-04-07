@@ -27,7 +27,7 @@ try:
         '--db-file', db_file_path,
         '--source-lang', source_lang,
         '--target-lang', target_lang,
-        '--initial-chunk-size', initial_chunk_size,
+        '--initial-chunk-size', str(initial_chunk_size),
         ],
         check=True,)
 except subprocess.CalledProcessError:
