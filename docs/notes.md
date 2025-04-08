@@ -18,6 +18,10 @@ python end2end.py --db-file data/dump-data.db --dest-folder data --initial-chunk
 ```
 
 
+## search box
+
+from https://dev.to/am20dipi/how-to-build-a-simple-search-bar-in-javascript-4onf
+
 ## the step by step way
 
 - copy the extracted data from the dump in a file somewhere: eg `data/dump-data.db`

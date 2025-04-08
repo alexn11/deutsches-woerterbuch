@@ -1,0 +1,146 @@
+
+
+<!DOCTYPE html>
+   <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>dictionary</title>
+        <link rel="stylesheet" href="css/dict.css">
+      </head>
+      <body>
+        <div class="form-container">
+                  <form class="form">
+                      <input id="search" type="text" class="input" placeholder="search..."/>
+                      <button id="clear" class="clear-results">clear</button>
+                  </form>
+    
+        </div>
+        <div class="results-container">
+           <ul class="results-list" id="list">
+    
+           </ul>
+        </div>
+        <script>
+        
+        const search_input = document.querySelector('.input')
+        const clear_button = document.getElementById('clear')
+        const list = document.getElementById('list')
+        let dict_data =[]
+        
+        function prepare_dict_data(data){
+            data.forEach(item => {
+                item.name_search = item.entry.trim().toLowerCase()
+                item.name_and_meaning = item.name_search + ' ' + item.meaning.trim().toLowerCase()
+            })
+            dict_data = data;
+        }
+
+        function fetch_dict_data() {
+            fetch('data/translations-en-de.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();  
+                })
+                .then(data => prepare_dict_data(data))
+                .catch(error => console.error('Failed to fetch data:', error)); 
+        }
+        fetch_dict_data(); 
+        
+        function clear_results(){
+            list.innerHTML = ""
+            /* looping through each child of the search results list and remove each child
+            while (list.firstChild){
+                list.removeChild(list.firstChild)
+            }*/
+        }
+        
+        function show_no_result(){
+            // create an element for the error; a list item ("li")
+            const error = document.createElement('li')
+            // adding a class name of "error-message" to our error element
+            error.classList.add('error-message')
+            // creating text for our element
+            const text = document.createTextNode('(no match)')
+            // appending the text to our element
+            error.appendChild(text)
+            // appending the error to our list element
+            list.appendChild(error)
+        }
+        
+        function format_result(item_div, entry_data){
+            const entry_name_text_element = document.createTextNode(entry_data.entry)
+            const entry_name_element = document.createElement('b')
+            entry_name_element.appendChild(entry_name_text_element)
+            item_div.appendChild(entry_name_element)
+            if(entry_data.meaning){
+                const meaning_text_element = document.createTextNode(" (" + entry_data.meaning + "):")
+                item_div.appendChild(meaning_text_element)
+            }
+            item_div.insertAdjacentHTML('beforeend', entry_data.translations_html);
+        }
+        
+        function set_result_list(results){
+            clear_results()
+            for (const dict_entry of results){
+                const resultItem = document.createElement('li')
+                resultItem.classList.add('result-item')
+                const item_div = document.createElement('div')
+                format_result(item_div, dict_entry)
+                resultItem.appendChild(item_div)
+                list.appendChild(resultItem)
+            }
+            if (results.length === 0 ){
+                show_no_result()
+            }
+        }
+        
+
+        function find_matches(search_input){
+            search_input = search_input.trim().toLowerCase()
+            let is_short_input = (search_input.length < 4);
+            let exact_matches = dict_data.filter(dict_data => {
+                return dict_data.name_search.localeCompare(search_input) === 0
+            })
+            let matches = exact_matches;
+            if(! is_short_input) {
+                // there's probably a more efficient way to do this
+                let entry_starts_with_matches = dict_data.filter(dict_data => {
+                    return !(dict_data in matches) && dict_data.name_search.startsWith(search_input)
+                })
+                matches = matches.concat(entry_starts_with_matches)
+                let entry_and_meaning_starts_with_matches = dict_data.filter(dict_data => {
+                    return !(dict_data in matches) && dict_data.name_and_meaning.startsWith(search_input)
+                })
+                matches = matches.concat(entry_and_meaning_starts_with_matches)
+                let entry_contains_matches = dict_data.filter(dict_data => {
+                    return !(dict_data in matches) && dict_data.name_search.includes(search_input)
+                })
+                matches = matches.concat(entry_contains_matches)
+                let entry_and_meaning_contains_mathes = dict_data.filter(dict_data => {
+                    return !(dict_data in matches) && dict_data.name_and_meaning.includes(search_input)
+                })
+                matches = matches.concat(entry_and_meaning_contains_mathes)
+            }
+            return matches
+        }
+
+        search_input.addEventListener("input", (e) => {
+            let search_input = e.target.value
+        
+            if (search_input.trim()){
+                //search_input = search_input.trim().toLowerCase();
+                set_result_list(find_matches(search_input));
+            }
+        });
+        clear_button.addEventListener("click", () => {
+            clear_results()
+        })
+        </script>
+      </body>
+   </html>
+
+
+

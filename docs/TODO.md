@@ -2,7 +2,7 @@
 
 # todo
 
-- json merger
+- doublons ??? why?
 - search box
 - rerun german process with newest macro porcesses
 - split multiword `{{t}}` templates when the page doesn't exist (requires to check the existence of the page)
