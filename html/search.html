@@ -8,7 +8,7 @@
         <title>dictionary</title>
         <link rel="stylesheet" href="css/dict.css">
         <script>
-            const embedded_data = [];
+            const embedded_data = false;
         </script>
       </head>
       <body>
@@ -43,7 +43,7 @@
         }
 
         function fetch_dict_data() {
-            if(len(embedded_data) == 0){
+            if(!embedded_data){
                 fetch('data/translations-en-de.json')
                     .then(response => {
                         if (!response.ok) {
