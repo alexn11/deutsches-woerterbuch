@@ -7,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>dictionary</title>
         <link rel="stylesheet" href="css/dict.css">
+        <script>const nothing = "";</script>
       </head>
       <body>
         <div class="form-container">
@@ -40,15 +41,19 @@
         }
 
         function fetch_dict_data() {
-            fetch('data/translations-en-de.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();  
-                })
-                .then(data => prepare_dict_data(data))
-                .catch(error => console.error('Failed to fetch data:', error)); 
+            if(len(dict_data) == 0){
+                fetch('data/translations-en-de.json')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();  
+                    })
+                    .then(data => prepare_dict_data(data))
+                    .catch(error => console.error('Failed to fetch data:', error)); 
+            } else {
+                prepare_dict_data(dict_data)                
+            }
         }
         fetch_dict_data(); 
         
