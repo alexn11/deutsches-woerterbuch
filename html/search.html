@@ -23,7 +23,7 @@
         </div>
         <script>
         
-        const search_input = document.querySelector('.input')
+        const search_input_element = document.querySelector('.input')
         const clear_button = document.getElementById('clear')
         const list = document.getElementById('list')
         let dict_data =[]
@@ -33,7 +33,10 @@
                 item.name_search = item.entry.trim().toLowerCase()
                 item.name_and_meaning = item.name_search + ' ' + item.meaning.trim().toLowerCase()
             })
-            dict_data = data;
+            // remove duplicates
+            dict_data = Array.from(
+                new Set(data.map(item => JSON.stringify(item)))
+            ).map(str => JSON.parse(str));
         }
 
         function fetch_dict_data() {
@@ -76,9 +79,10 @@
             entry_name_element.appendChild(entry_name_text_element)
             item_div.appendChild(entry_name_element)
             if(entry_data.meaning){
-                const meaning_text_element = document.createTextNode(" (" + entry_data.meaning + "):")
+                const meaning_text_element = document.createTextNode(" (" + entry_data.meaning + ")")
                 item_div.appendChild(meaning_text_element)
             }
+            item_div.appendChild(document.createTextNode(': '))
             item_div.insertAdjacentHTML('beforeend', entry_data.translations_html);
         }
         
@@ -97,37 +101,41 @@
             }
         }
         
+        function check_if_item_in_array(array, item) {
+            return array.some(x =>
+            (x.entry.localeCompare(item.entry) === 0)
+            &&
+            (x.meaning.localeCompare(item.meaning) === 0)
+            &&
+            (x.translations_html.localeCompare(item.translations_html) === 0))
+        }
 
         function find_matches(search_input){
             search_input = search_input.trim().toLowerCase()
             let is_short_input = (search_input.length < 4);
-            let exact_matches = dict_data.filter(dict_data => {
-                return dict_data.name_search.localeCompare(search_input) === 0
+            let exact_matches = dict_data.filter(item => {
+                return item.name_search.localeCompare(search_input) === 0
             })
-            let matches = exact_matches;
+            let matches = exact_matches
             if(! is_short_input) {
                 // there's probably a more efficient way to do this
-                let entry_starts_with_matches = dict_data.filter(dict_data => {
-                    return !(dict_data in matches) && dict_data.name_search.startsWith(search_input)
+                let entry_starts_with_matches = dict_data.filter(item => {
+                    return !check_if_item_in_array(matches, item) && item.name_search.startsWith(search_input)
                 })
                 matches = matches.concat(entry_starts_with_matches)
-                let entry_and_meaning_starts_with_matches = dict_data.filter(dict_data => {
-                    return !(dict_data in matches) && dict_data.name_and_meaning.startsWith(search_input)
-                })
-                matches = matches.concat(entry_and_meaning_starts_with_matches)
-                let entry_contains_matches = dict_data.filter(dict_data => {
-                    return !(dict_data in matches) && dict_data.name_search.includes(search_input)
+                let entry_contains_matches = dict_data.filter(item => {
+                    return !check_if_item_in_array(matches, item) && item.name_search.includes(search_input)
                 })
                 matches = matches.concat(entry_contains_matches)
-                let entry_and_meaning_contains_mathes = dict_data.filter(dict_data => {
-                    return !(dict_data in matches) && dict_data.name_and_meaning.includes(search_input)
+                let entry_and_meaning_contains_mathes = dict_data.filter(item => {
+                    return !check_if_item_in_array(matches, item) && item.name_and_meaning.includes(search_input)
                 })
                 matches = matches.concat(entry_and_meaning_contains_mathes)
             }
             return matches
         }
 
-        search_input.addEventListener("input", (e) => {
+        search_input_element.addEventListener("input", (e) => {
             let search_input = e.target.value
         
             if (search_input.trim()){
