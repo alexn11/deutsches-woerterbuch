@@ -11,7 +11,7 @@ See [html/index.html](html/index.html).
 
 # Generating the dictionaries
 
-See [docs/howtos](docs/howtos)
+See [docs/notes](docs/notes)
 
 # License
 

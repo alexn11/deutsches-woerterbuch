@@ -8,6 +8,12 @@
 
 # wip
 
+- yoruba
+- scots
+- turkish
+- arabic
+- dutch
+
 # not really
 - doesnt work for chinese: very few translations are captured
 
