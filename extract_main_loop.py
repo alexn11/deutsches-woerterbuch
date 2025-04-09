@@ -21,8 +21,8 @@ from wikitools import wiki_urls
 #
 
 def language_names_to_tag(source_lang: str, target_lang: str) -> str:
-    source_lang = source_lang[:3].lower()
-    target_lang = target_lang[:3].lower()
+    source_lang = wiki_urls.get_language_code(source_lang)
+    target_lang = wiki_urls.get_language_code(target_lang)
     return f'{source_lang}-{target_lang}'
 
 def main_process(db_file_path: str = 'data/dump-data.db',
