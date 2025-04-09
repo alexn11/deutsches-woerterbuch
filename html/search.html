@@ -5,11 +5,28 @@
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>dictionary</title>
+        <title>wiktionary translation lookup</title>
         <link rel="stylesheet" href="css/dict.css">
         <script>
             const embedded_data = false;
         </script>
+        <style>
+            .form-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .results-container {
+                display: flex;
+                justify-content: left;
+                margin-top: 20px;
+            }
+            .list-message {
+                color: #3e3e3e;
+                font-style: italic;
+                font-size: small;
+            }
+        </style>
       </head>
       <body>
         <div class="form-container">
@@ -21,14 +38,13 @@
         </div>
         <div class="results-container">
            <ul class="results-list" id="list">
-    
            </ul>
         </div>
         <script>
         
         const search_input_element = document.querySelector('.input')
         const clear_button = document.getElementById('clear')
-        const list = document.getElementById('list')
+        const result_list = document.getElementById('list')
         let dict_data =[]
         
         function prepare_dict_data(data){
@@ -60,19 +76,25 @@
         fetch_dict_data(); 
         
         function clear_results(){
-            list.innerHTML = ""
-            /* looping through each child of the search results list and remove each child
-            while (list.firstChild){
+            // this reloads the page for some reason
+            result_list.innerHTML = ""
+            /*while (list.firstChild){
                 list.removeChild(list.firstChild)
             }*/
         }
         
+        function put_message_in_list(message){
+            let message_text = document.createTextNode(message)
+            let message_container = document.createElement('div')
+            message_container.classList.add('list-message')
+            message_container.appendChild(message_text)
+            result_list.appendChild(message_container)
+            /*let container_item = document.createElement('li')
+            result_list.appendChild(container_item)*/
+        }
+
         function show_no_result(){
-            /*const error = document.createElement('li')
-            error.classList.add('error-message')
-            //const text = document.createTextNode('(no match)')
-            //error.appendChild(text)
-            list.appendChild(error)*/
+            put_message_in_list("no match")
         }
         
         function format_result(item_div, entry_data){
@@ -139,8 +161,8 @@
 
         search_input_element.addEventListener("input", (e) => {
             let search_input = e.target.value
-        
             if (search_input.trim()){
+                put_message_in_list("searching...")
                 //search_input = search_input.trim().toLowerCase();
                 set_result_list(find_matches(search_input));
             }
