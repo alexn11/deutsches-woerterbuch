@@ -17,6 +17,17 @@ for small language, the chunking isnt necessary, can skip that by passing chunk 
 python end2end.py --db-file data/dump-data.db --dest-folder data --initial-chunk-size 0 --target-lang Nahuatl
 ```
 
+convert the result into a selbstständig html datei:
+```bash
+python embed-data-into-html.py  --target-lang German --data-folder data 
+```
+### examples
+
+```bash
+python end2end.py --db-file data/dump-data.db --dest-folder data --target-lang Chinese
+python embed-data-into-html.py  --target-lang Chinese --data-folder data 
+```
+
 
 ## search box
 
