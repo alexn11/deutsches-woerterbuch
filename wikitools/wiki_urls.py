@@ -1,5 +1,13 @@
 import iso639
 
+def get_language_code(language_name: str) -> str:
+    lang_data = iso639.find(language=language_name)
+    if(lang_data is None):
+        language_code = language_name
+    else:
+        language_code = lang_data['iso639_1']
+    return language_code
+
 def convert_language_code_to_language_name(language_code: str) -> str:
     lang_data = iso639.find(iso639_1=language_code)
     if(lang_data is None):
