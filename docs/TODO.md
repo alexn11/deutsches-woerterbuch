@@ -2,6 +2,10 @@
 
 # todo
 
+- use language codes instead of 1st 3 letters
+- content is CC-BY-SA with easy to find ref to en.wiktionary.org
+- software can be licencsed whatever
+- data should be available
 - doublons ??? why?
 - search box
 - rerun german process with newest macro porcesses
