@@ -8,8 +8,6 @@
 
 # wip
 
-- scots
-- turkish
 - arabic
 - dutch
 
