@@ -15,6 +15,8 @@
 
 # wip
 
+# not really
+- doesnt work for chinese: very few translations are captured
 
 # DONE
 

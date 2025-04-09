@@ -6,10 +6,16 @@ def get_language_code(language_name: str) -> str:
         language_code = language_name
     else:
         language_code = lang_data['iso639_1']
+        if(language_code == ''):
+            language_code = lang_data['iso639_2_b']
+            if(language_code == ''):
+                language_code = lang_data['iso639_2_t']
     return language_code
 
 def convert_language_code_to_language_name(language_code: str) -> str:
     lang_data = iso639.find(iso639_1=language_code)
+    if(lang_data is None):
+        lang_data = iso639.find(iso639_2=language_code)
     if(lang_data is None):
         language_name = language_code
     else:

@@ -24,9 +24,10 @@ python embed-data-into-html.py  --target-lang German --data-folder data
 ### examples
 
 ```bash
-python end2end.py --db-file data/dump-data.db --dest-folder data --target-lang Chinese
-python embed-data-into-html.py  --target-lang Chinese --data-folder data 
+python end2end.py --db-file data/dump-data.db --dest-folder data --target-lang Akkadian --initial-chunk-size 0
+python embed-data-into-html.py  --data-folder data  --target-lang Akkadian
 ```
+(note the transcription param isnt processed properly)
 
 
 ## search box
