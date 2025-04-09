@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>wiktionary translation lookup</title>
+</head>
+<body>
+
 <h1>Translation dictionaries, extracted from <a href="https://en.wiktionary.org/wiki/Wiktionary:Main_Page">Wiktionary</a></h1>
 
 The data itself is released under the <a href="https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_4.0_International_License">CC-BY-SA</a> license
@@ -12,9 +21,9 @@ No need for an app or any special software. Just open the HTML file in your brow
 
 <h2>Available languages</h2>
 
-Since the data come from Wiktionary, this limits the available languages to those that are present with enough translations in the Wiktionary database.
+Since the data come from Wiktionary, this limits the available languages to those that are present in the Wiktionary database.
 
-The available languages are the ones that I have bothered to extract and format. If you want to add more languages, you can do so by downloading the data from Wiktionary and running the scripts attached to the project (see the documentation of the project for more information).
+I have extracted the translations for a few languages of my choosing. If you want to create a dictionary for another language, you can do so by downloading the data from Wiktionary and running the scripts attached to the project (see the documentation of the project for more information).
 
 I've put the languages I have extracted in three categories:
 <ul>
@@ -36,28 +45,39 @@ I've put the languages I have extracted in three categories:
 <ul id="experimental-dicts-list">
 </ul>
 
+<h2>Credits</h2>
+
+The source of the data is <a href="https://en.wiktionary.org/wiki/Wiktionary:Main_Page">Wiktionary</a> and the data is released under the <a href="https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_4.0_International_License">CC-BY-SA</a> license.
+
+Consider donating to the project if you find it useful. You can do so by buying me a <a target="_blank" href="https://buymeacoffee.com/alexn11">coffee</a>, or by donating to the <a href="https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wiktionary.org&uselang=en">Wikimedia Foundation</a>.
+
 
 <script>
     const dicts = {
-        "en-de": {
-            "name": "English - German",
-            "type": "usable",
-            "url": "search-en-de.html"
+        "en-akk": {
+            "name": "English - Akkadian",
+            "type": "experimental",
+            "url": "search-en-akk.html"
         },
         "en-fr": {
             "name": "English - French",
             "type": "usable",
             "url": "search-en-fr.html"
         },
-        "en-es": {
-            "name": "English - Spanish",
+        "en-de": {
+            "name": "English - German",
             "type": "usable",
-            "url": "search-en-es.html"
+            "url": "search-en-de.html"
         },
         "en-it": {
             "name": "English - Italian",
             "type": "usable",
             "url": "search-en-it.html"
+        },
+        "en-Nahuatl": {
+            "name": "English - Nahuatl",
+            "type": "experimental",
+            "url": "search-en-Nahuatl.html"
         },
         "en-pt": {
             "name": "English - Portuguese",
@@ -69,16 +89,16 @@ I've put the languages I have extracted in three categories:
             "type": "usable",
             "url": "search-en-ru.html"
         },
-        "en-akk": {
-            "name": "English - Akkadian",
-            "type": "experimental",
-            "url": "search-en-akk.html"
+        "en-es": {
+            "name": "English - Spanish",
+            "type": "usable",
+            "url": "search-en-es.html"
         },
         "en-sux": {
             "name": "English - Sumerian",
             "type": "experimental",
             "url": "search-en-sux.html"
-        }
+        },
     };
 
     const dicts_list = {
@@ -89,13 +109,14 @@ I've put the languages I have extracted in three categories:
 
     for (const [key, value] of Object.entries(dicts)) {
         const li = document.createElement('li');
-        li.innerHTML = `${value.name} <a href="${value.url}">online</a>, <a download="${value.url}">download</a>`;
+        li.innerHTML = `${value.name} <a href="${value.url}">online</a>, <a href="${value.url}" download="${value.url}">download</a>`;
         dicts_list[value.type].appendChild(li);
     }
 </script>
 
 
-
+</body>
+</html>
 
 
 
