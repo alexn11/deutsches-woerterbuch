@@ -1,0 +1,101 @@
+<h1>Translation dictionaries, extracted from <a href="https://en.wiktionary.org/wiki/Wiktionary:Main_Page">Wiktionary</a></h1>
+
+The data itself is released under the <a href="https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_4.0_International_License">CC-BY-SA</a> license
+and be freely used under the same license.
+
+<h2>How does it work?</h2>
+
+Simply download the page to your device and open it in your browser. You can then search for any word in the dictionary.
+
+Except for accessing the linked entries, no internet connection is required to use the dictionary, as it is stored locally on your device.
+No need for an app or any special software. Just open the HTML file in your browser and start searching for words.
+
+<h2>Available languages</h2>
+
+Since the data come from Wiktionary, this limits the available languages to those that are present with enough translations in the Wiktionary database.
+
+The available languages are the ones that I have bothered to extract and format. If you want to add more languages, you can do so by downloading the data from Wiktionary and running the scripts attached to the project (see the documentation of the project for more information).
+
+I've put the languages I have extracted in three categories:
+<ul>
+    <li><b>Languages with a sufficient number of entries ("usable"):</b> these have enough translations (tens of thousands) to be used like a real dictionary,</li>
+    <li><b>Languages with an intermediate amount of entries ("interesting"):</b> the number of translations is insufficient for a general use, but it might be okayish for basic vocabulary,</li>
+    <li><b>Languages with not so many entries ("experimental"):</b> language with less than a thousand (or so) translation. I've included them for fun.</li>
+</ul>
+
+<h3>Usable dictionaries</h3>
+
+<ul id="usable-dicts-list">
+</ul>
+
+<h3>Interesting dictionaries</h3>
+<ul id="interesting-dicts-list">
+</ul>
+
+<h3>Experimental dictionaries</h3>
+<ul id="experimental-dicts-list">
+</ul>
+
+
+<script>
+    const dicts = {
+        "en-de": {
+            "name": "English - German",
+            "type": "usable",
+            "url": "search-en-de.html"
+        },
+        "en-fr": {
+            "name": "English - French",
+            "type": "usable",
+            "url": "search-en-fr.html"
+        },
+        "en-es": {
+            "name": "English - Spanish",
+            "type": "usable",
+            "url": "search-en-es.html"
+        },
+        "en-it": {
+            "name": "English - Italian",
+            "type": "usable",
+            "url": "search-en-it.html"
+        },
+        "en-pt": {
+            "name": "English - Portuguese",
+            "type": "usable",
+            "url": "search-en-pt.html"
+        },
+        "en-ru": {
+            "name": "English - Russian",
+            "type": "usable",
+            "url": "search-en-ru.html"
+        },
+        "en-akk": {
+            "name": "English - Akkadian",
+            "type": "experimental",
+            "url": "search-en-akk.html"
+        },
+        "en-sux": {
+            "name": "English - Sumerian",
+            "type": "experimental",
+            "url": "search-en-sux.html"
+        }
+    };
+
+    const dicts_list = {
+        usable: document.getElementById('usable-dicts-list'),
+        interesting: document.getElementById('interesting-dicts-list'),
+        experimental: document.getElementById('experimental-dicts-list')
+    };
+
+    for (const [key, value] of Object.entries(dicts)) {
+        const li = document.createElement('li');
+        li.innerHTML = `${value.name} <a href="${value.url}">online</a>, <a download="${value.url}">download</a>`;
+        dicts_list[value.type].appendChild(li);
+    }
+</script>
+
+
+
+
+
+
