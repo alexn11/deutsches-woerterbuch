@@ -8,7 +8,6 @@
 
 # wip
 
-- yoruba
 - scots
 - turkish
 - arabic
