@@ -30,6 +30,11 @@ python embed-data-into-html.py  --data-folder data  --target-lang Akkadian
 (note the transcription param isnt processed properly)
 
 
+```bash
+python end2end.py --db-file data/dump-data.db --dest-folder data --target-lang Spanish
+python embed-data-into-html.py  --data-folder data  --target-lang Spanish
+```
+
 ## search box
 
 from https://dev.to/am20dipi/how-to-build-a-simple-search-bar-in-javascript-4onf

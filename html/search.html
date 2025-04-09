@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
    <html lang="en">
       <head>
@@ -16,6 +14,13 @@
                 justify-content: center;
                 margin-top: 20px;
             }
+            .credits-container, .footer-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                font-style: italic;
+                font-size: small;
+            }
             .results-container {
                 display: flex;
                 justify-content: left;
@@ -26,7 +31,123 @@
                 font-style: italic;
                 font-size: small;
             }
+
         </style>
+        <script>
+            let dict_data =[]
+            
+            function prepare_dict_data(data){
+                data.forEach(item => {
+                    item.name_search = item.entry.trim().toLowerCase()
+                    item.name_and_meaning = item.name_search + ' ' + item.meaning.trim().toLowerCase()
+                })
+                // remove duplicates
+                dict_data = Array.from(
+                    new Set(data.map(item => JSON.stringify(item)))
+                ).map(str => JSON.parse(str));
+            }
+    
+            function fetch_dict_data() {
+                if(!embedded_data){
+                    fetch('data/translations-en-de.json')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();  
+                        })
+                        .then(data => prepare_dict_data(data))
+                        .catch(error => console.error('Failed to fetch data:', error)); 
+                } else {
+                    prepare_dict_data(embedded_data)                
+                }
+            }
+            fetch_dict_data(); 
+            
+            function clear_results(){
+                // this reloads the page for some reason
+                result_list.innerHTML = ""
+                /*while (list.firstChild){
+                    list.removeChild(list.firstChild)
+                }*/
+            }
+            
+            function put_message_in_list(message){
+                let message_text = document.createTextNode(message)
+                let message_container = document.createElement('div')
+                message_container.classList.add('list-message')
+                message_container.appendChild(message_text)
+                result_list.appendChild(message_container)
+                /*let container_item = document.createElement('li')
+                result_list.appendChild(container_item)*/
+            }
+    
+            function show_no_result(){
+                put_message_in_list("no match")
+            }
+            
+            function format_result(item_div, entry_data){
+                const entry_name_text_element = document.createTextNode(entry_data.entry)
+                const entry_name_element = document.createElement('b')
+                entry_name_element.appendChild(entry_name_text_element)
+                item_div.appendChild(entry_name_element)
+                if(entry_data.meaning){
+                    const meaning_text_element = document.createTextNode(" (" + entry_data.meaning + ")")
+                    item_div.appendChild(meaning_text_element)
+                }
+                item_div.appendChild(document.createTextNode(': '))
+                item_div.insertAdjacentHTML('beforeend', entry_data.translations_html);
+            }
+            
+            function set_result_list(results){
+                clear_results()
+                for (const dict_entry of results){
+                    const resultItem = document.createElement('li')
+                    resultItem.classList.add('result-item')
+                    const item_div = document.createElement('div')
+                    format_result(item_div, dict_entry)
+                    resultItem.appendChild(item_div)
+                    list.appendChild(resultItem)
+                }
+                if (results.length === 0 ){
+                    show_no_result()
+                }
+            }
+            
+            function check_if_item_in_array(array, item) {
+                return array.some(x =>
+                (x.entry.localeCompare(item.entry) === 0)
+                &&
+                (x.meaning.localeCompare(item.meaning) === 0)
+                &&
+                (x.translations_html.localeCompare(item.translations_html) === 0))
+            }
+    
+            function find_matches(search_input){
+                search_input = search_input.trim().toLowerCase()
+                let is_short_input = (search_input.length < 4);
+                let exact_matches = dict_data.filter(item => {
+                    return item.name_search.localeCompare(search_input) === 0
+                })
+                let matches = exact_matches
+                if(! is_short_input) {
+                    // there's probably a more efficient way to do this
+                    let entry_starts_with_matches = dict_data.filter(item => {
+                        return !check_if_item_in_array(matches, item) && item.name_search.startsWith(search_input)
+                    })
+                    matches = matches.concat(entry_starts_with_matches)
+                    let entry_contains_matches = dict_data.filter(item => {
+                        return !check_if_item_in_array(matches, item) && item.name_search.includes(search_input)
+                    })
+                    matches = matches.concat(entry_contains_matches)
+                    let entry_and_meaning_contains_mathes = dict_data.filter(item => {
+                        return !check_if_item_in_array(matches, item) && item.name_and_meaning.includes(search_input)
+                    })
+                    matches = matches.concat(entry_and_meaning_contains_mathes)
+                }
+                return matches
+            }
+            </script>    
       </head>
       <body>
         <div class="form-container">
@@ -36,129 +157,27 @@
                   </form>
     
         </div>
+        <div class="credits-container">
+            Source of the data: <a href="https://en.wiktionary.org/wiki/Wiktionary:Main_Page">Wiktionary</a>
+            <a href="https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_4.0_International_License">(CC-BY-SA)</a>.
+        </div>
         <div class="results-container">
            <ul class="results-list" id="list">
            </ul>
         </div>
+        <div class="footer-container">
+            If you find this tool useful, consider making a donation to <a href="https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wiktionary.org&uselang=en">Wikimedia</a>.
+            They make this project possible!
+            (The maker and distributors of this tool are not affiliated with Wikimedia)
+        </div>
+        <div class="footer-container">
+            (Also consider &nbsp;<a target="_blank" href="https://buymeacoffee.com/alexn11">buying me a coffee</a>)
+        </div>
+
         <script>
-        
         const search_input_element = document.querySelector('.input')
         const clear_button = document.getElementById('clear')
         const result_list = document.getElementById('list')
-        let dict_data =[]
-        
-        function prepare_dict_data(data){
-            data.forEach(item => {
-                item.name_search = item.entry.trim().toLowerCase()
-                item.name_and_meaning = item.name_search + ' ' + item.meaning.trim().toLowerCase()
-            })
-            // remove duplicates
-            dict_data = Array.from(
-                new Set(data.map(item => JSON.stringify(item)))
-            ).map(str => JSON.parse(str));
-        }
-
-        function fetch_dict_data() {
-            if(!embedded_data){
-                fetch('data/translations-en-de.json')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();  
-                    })
-                    .then(data => prepare_dict_data(data))
-                    .catch(error => console.error('Failed to fetch data:', error)); 
-            } else {
-                prepare_dict_data(embedded_data)                
-            }
-        }
-        fetch_dict_data(); 
-        
-        function clear_results(){
-            // this reloads the page for some reason
-            result_list.innerHTML = ""
-            /*while (list.firstChild){
-                list.removeChild(list.firstChild)
-            }*/
-        }
-        
-        function put_message_in_list(message){
-            let message_text = document.createTextNode(message)
-            let message_container = document.createElement('div')
-            message_container.classList.add('list-message')
-            message_container.appendChild(message_text)
-            result_list.appendChild(message_container)
-            /*let container_item = document.createElement('li')
-            result_list.appendChild(container_item)*/
-        }
-
-        function show_no_result(){
-            put_message_in_list("no match")
-        }
-        
-        function format_result(item_div, entry_data){
-            const entry_name_text_element = document.createTextNode(entry_data.entry)
-            const entry_name_element = document.createElement('b')
-            entry_name_element.appendChild(entry_name_text_element)
-            item_div.appendChild(entry_name_element)
-            if(entry_data.meaning){
-                const meaning_text_element = document.createTextNode(" (" + entry_data.meaning + ")")
-                item_div.appendChild(meaning_text_element)
-            }
-            item_div.appendChild(document.createTextNode(': '))
-            item_div.insertAdjacentHTML('beforeend', entry_data.translations_html);
-        }
-        
-        function set_result_list(results){
-            clear_results()
-            for (const dict_entry of results){
-                const resultItem = document.createElement('li')
-                resultItem.classList.add('result-item')
-                const item_div = document.createElement('div')
-                format_result(item_div, dict_entry)
-                resultItem.appendChild(item_div)
-                list.appendChild(resultItem)
-            }
-            if (results.length === 0 ){
-                show_no_result()
-            }
-        }
-        
-        function check_if_item_in_array(array, item) {
-            return array.some(x =>
-            (x.entry.localeCompare(item.entry) === 0)
-            &&
-            (x.meaning.localeCompare(item.meaning) === 0)
-            &&
-            (x.translations_html.localeCompare(item.translations_html) === 0))
-        }
-
-        function find_matches(search_input){
-            search_input = search_input.trim().toLowerCase()
-            let is_short_input = (search_input.length < 4);
-            let exact_matches = dict_data.filter(item => {
-                return item.name_search.localeCompare(search_input) === 0
-            })
-            let matches = exact_matches
-            if(! is_short_input) {
-                // there's probably a more efficient way to do this
-                let entry_starts_with_matches = dict_data.filter(item => {
-                    return !check_if_item_in_array(matches, item) && item.name_search.startsWith(search_input)
-                })
-                matches = matches.concat(entry_starts_with_matches)
-                let entry_contains_matches = dict_data.filter(item => {
-                    return !check_if_item_in_array(matches, item) && item.name_search.includes(search_input)
-                })
-                matches = matches.concat(entry_contains_matches)
-                let entry_and_meaning_contains_mathes = dict_data.filter(item => {
-                    return !check_if_item_in_array(matches, item) && item.name_and_meaning.includes(search_input)
-                })
-                matches = matches.concat(entry_and_meaning_contains_mathes)
-            }
-            return matches
-        }
-
         search_input_element.addEventListener("input", (e) => {
             let search_input = e.target.value
             if (search_input.trim()){
